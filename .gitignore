@@ -1,0 +1,32 @@
+# Node
+node_modules/
+.expo/
+npm-debug.*
+yarn-debug.*
+yarn-error.log
+
+# Expo
+web-build/
+dist/
+android/
+ios/
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+google-services.json
+GoogleService-Info.plist
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+.env
+.env.*
+.vscode/
