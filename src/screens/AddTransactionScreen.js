@@ -1,11 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
 
 const AddTransactionScreen = ({ navigation }) => {
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+  
+  // Load saved dark mode preference on component mount
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
+  
+  // Theme colors
+  const themeColors = useMemo(() => ({
+    background: isDark ? '#000000' : colors.backgroundLight,
+    surface: isDark ? '#121212' : colors.surfaceLight,
+    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
+    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
+    border: isDark ? '#333333' : colors.borderLight,
+    inputBackground: isDark ? '#1E1E1E' : '#FFFFFF',
+    inputText: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    placeholderText: isDark ? '#888888' : '#999999',
+    shadow: isDark ? '#000' : '#000',
+    shadowOpacity: isDark ? 0.3 : 0.1,
+  }), [isDark]);
+
   const [transactionType, setTransactionType] = useState('expense'); // 'income' or 'expense'
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -106,8 +142,10 @@ const AddTransactionScreen = ({ navigation }) => {
     );
   };
 
+  const styles = getStyles(themeColors);
+  
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <Header 
         title="Add Transaction" 
         showUserIcon={true}
@@ -361,10 +399,10 @@ const AddTransactionScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   saveButton: {
     fontSize: typography.fontSize.base,
@@ -381,12 +419,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 8,
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 8,
     padding: 4,
   },
@@ -405,38 +443,38 @@ const styles = StyleSheet.create({
   toggleText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   activeExpenseText: {
-    color: 'white',
+    color: '#FFFFFF',
   },
   activeIncomeText: {
-    color: 'white',
+    color: '#FFFFFF',
   },
   inputGroup: {
     marginBottom: 24,
   },
   input: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
   },
   currencySymbol: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     paddingHorizontal: 16,
   },
   amountInput: {
@@ -449,9 +487,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryChip: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -462,41 +500,41 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   selectedCategoryText: {
-    color: 'white',
+    color: theme.placeholderText,
   },
   dateInput: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
   dateText: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   dateIcon: {
     fontSize: typography.fontSize.base,
   },
   summaryCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginTop: 24,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
   },
   summaryTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 12,
   },
   summaryRow: {
@@ -506,11 +544,11 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   summaryValue: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     fontWeight: typography.fontWeight.medium,
   },
   incomeText: {
@@ -528,14 +566,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
   bottomSaveButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
   },
@@ -547,7 +586,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: 'white',
+    backgroundColor: theme.inputBackground,
     borderRadius: 16,
     padding: 24,
     width: '90%',
@@ -556,7 +595,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -572,7 +611,7 @@ const styles = StyleSheet.create({
   pickerLabel: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
   },
@@ -593,10 +632,10 @@ const styles = StyleSheet.create({
   },
   pickerItemText: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   pickerItemTextSelected: {
-    color: 'white',
+    color: theme.placeholderText,
     fontWeight: typography.fontWeight.semibold,
   },
   modalActions: {
@@ -608,13 +647,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     alignItems: 'center',
   },
   cancelButtonText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   saveButton: {
     flex: 1,
@@ -626,7 +665,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: 'white',
+    color: theme.placeholderText,
   },
 });
 

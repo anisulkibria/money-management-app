@@ -1,11 +1,47 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
 
 const AddBudgetScreen = ({ navigation }) => {
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+  
+  // Load saved dark mode preference on component mount
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
+  
+  // Theme colors
+  const themeColors = useMemo(() => ({
+    background: isDark ? '#000000' : colors.backgroundLight,
+    surface: isDark ? '#121212' : colors.surfaceLight,
+    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
+    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
+    border: isDark ? '#333333' : colors.borderLight,
+    inputBackground: isDark ? '#1E1E1E' : '#FFFFFF',
+    inputText: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    placeholderText: isDark ? '#888888' : '#999999',
+    shadowColor: isDark ? '#000' : '#000',
+    shadowOpacity: isDark ? 0.3 : 0.1,
+  }), [isDark]);
+
   const [budgetName, setBudgetName] = useState('');
   const [budgetAmount, setBudgetAmount] = useState('');
   const [budgetPeriod, setBudgetPeriod] = useState('monthly');
@@ -26,7 +62,6 @@ const AddBudgetScreen = ({ navigation }) => {
 
   const periods = [
     { key: 'weekly', label: 'Weekly' },
-    { key: 'biweekly', label: 'Bi-weekly' },
     { key: 'monthly', label: 'Monthly' },
     { key: 'yearly', label: 'Yearly' }
   ];
@@ -58,8 +93,10 @@ const AddBudgetScreen = ({ navigation }) => {
     );
   };
 
+  const styles = getStyles(themeColors);
+  
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <Header 
         title="Add Budget" 
         showUserIcon={true}
@@ -73,35 +110,52 @@ const AddBudgetScreen = ({ navigation }) => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Budget Name */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Budget Name</Text>
+          <Text style={[styles.label, { color: themeColors.textPrimary }]}>Budget Name</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input, 
+              { 
+                backgroundColor: themeColors.inputBackground,
+                borderColor: themeColors.border,
+                color: themeColors.inputText,
+              }
+            ]}
+            placeholder="e.g., Groceries, Rent, etc."
+            placeholderTextColor={themeColors.placeholderText}
             value={budgetName}
             onChangeText={setBudgetName}
-            placeholder="e.g., Monthly Grocery Budget"
-            placeholderTextColor={colors.textLightSecondary}
           />
         </View>
 
         {/* Budget Amount */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Budget Amount</Text>
-          <View style={styles.amountInputContainer}>
-            <Text style={styles.currencySymbol}>$</Text>
+          <Text style={[styles.label, { color: themeColors.textPrimary }]}>Budget Amount</Text>
+          <View style={[
+            styles.amountInputContainer, 
+            { 
+              backgroundColor: themeColors.inputBackground,
+              borderColor: themeColors.border,
+            }
+          ]}>
+            <Text style={[styles.currencySymbol, { color: themeColors.textSecondary }]}>$</Text>
             <TextInput
-              style={[styles.input, styles.amountInput]}
+              style={[
+                styles.input, 
+                styles.amountInput,
+                { color: themeColors.inputText }
+              ]}
+              placeholder="0.00"
+              placeholderTextColor={themeColors.placeholderText}
+              keyboardType="decimal-pad"
               value={budgetAmount}
               onChangeText={setBudgetAmount}
-              placeholder="0.00"
-              placeholderTextColor={colors.textLightSecondary}
-              keyboardType="numeric"
             />
           </View>
         </View>
 
         {/* Category */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Category</Text>
+          <Text style={[styles.label, { color: themeColors.textPrimary }]}>Category</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.categoryContainer}>
               {categories.map((category) => (
@@ -109,14 +163,28 @@ const AddBudgetScreen = ({ navigation }) => {
                   key={category}
                   style={[
                     styles.categoryChip,
-                    selectedCategory === category && styles.selectedCategoryChip
+                    { 
+                      backgroundColor: themeColors.cardBackground,
+                      borderColor: themeColors.border,
+                    },
+                    selectedCategory === category && [
+                      styles.selectedCategoryChip,
+                      { 
+                        backgroundColor: colors.primary,
+                        borderColor: colors.primary,
+                      }
+                    ]
                   ]}
                   onPress={() => setSelectedCategory(category)}
                 >
-                  <Text
+                  <Text 
                     style={[
                       styles.categoryText,
-                      selectedCategory === category && styles.selectedCategoryText
+                      { color: themeColors.textPrimary },
+                      selectedCategory === category && [
+                        styles.selectedCategoryText,
+                        { color: '#FFFFFF' }
+                      ]
                     ]}
                   >
                     {category}
@@ -129,21 +197,32 @@ const AddBudgetScreen = ({ navigation }) => {
 
         {/* Budget Period */}
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Budget Period</Text>
+          <Text style={[styles.label, { color: themeColors.textPrimary }]}>Budget Period</Text>
           <View style={styles.periodContainer}>
             {periods.map((period) => (
               <TouchableOpacity
                 key={period.key}
                 style={[
                   styles.periodChip,
-                  budgetPeriod === period.key && styles.selectedPeriodChip
+                  { 
+                    backgroundColor: themeColors.cardBackground,
+                    borderColor: themeColors.border,
+                  },
+                  budgetPeriod === period.key && [
+                    styles.selectedPeriodChip,
+                    { backgroundColor: colors.primary }
+                  ]
                 ]}
                 onPress={() => setBudgetPeriod(period.key)}
               >
-                <Text
+                <Text 
                   style={[
                     styles.periodText,
-                    budgetPeriod === period.key && styles.selectedPeriodText
+                    { color: themeColors.textPrimary },
+                    budgetPeriod === period.key && [
+                      styles.selectedPeriodText,
+                      { color: '#FFFFFF' }
+                    ]
                   ]}
                 >
                   {period.label}
@@ -156,7 +235,7 @@ const AddBudgetScreen = ({ navigation }) => {
         {/* Summary Card */}
         {(budgetName || budgetAmount || selectedCategory) && (
           <View style={styles.summaryCard}>
-            <Text style={styles.summaryTitle}>Budget Summary</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Budget Details</Text>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Name:</Text>
               <Text style={styles.summaryValue}>{budgetName || 'Not set'}</Text>
@@ -186,10 +265,10 @@ const AddBudgetScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   saveButton: {
     fontSize: typography.fontSize.base,
@@ -206,30 +285,30 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.inputBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.inputText,
   },
   amountInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.inputBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
   },
   currencySymbol: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     paddingHorizontal: 16,
   },
   amountInput: {
@@ -242,9 +321,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   categoryChip: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -255,19 +334,19 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textPrimary,
   },
   selectedCategoryText: {
-    color: 'white',
+    color: '#FFFFFF',
   },
   periodContainer: {
     flexDirection: 'row',
     gap: 8,
   },
   periodChip: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -280,24 +359,24 @@ const styles = StyleSheet.create({
   },
   periodText: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textPrimary,
     fontWeight: typography.fontWeight.medium,
   },
   selectedPeriodText: {
-    color: 'white',
+    color: '#FFFFFF',
   },
   summaryCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginTop: 24,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: theme.border,
   },
   summaryTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 12,
   },
   summaryRow: {
@@ -307,11 +386,11 @@ const styles = StyleSheet.create({
   },
   summaryLabel: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   summaryValue: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     fontWeight: typography.fontWeight.medium,
   },
 });

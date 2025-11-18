@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -6,6 +8,47 @@ import { colors, typography } from '../constants';
 import Header from '../components/Header';
 
 const ReportsScreen = ({ navigation }) => {
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+  
+  // Load saved dark mode preference on component mount and listen for changes
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+
+    // Add listener for dark mode changes
+    const unsubscribe = navigation.addListener('focus', loadDarkModePreference);
+    
+    // Cleanup listener on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]);
+  
+  // Theme colors
+  const themeColors = useMemo(() => ({
+    background: isDark ? '#000000' : colors.backgroundLight,
+    surface: isDark ? '#121212' : colors.surfaceLight,
+    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
+    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
+    border: isDark ? '#333333' : colors.borderLight,
+    shadow: isDark ? '#000' : '#000',
+    shadowOpacity: isDark ? 0.3 : 0.1,
+  }), [isDark]);
+  
+  const styles = getStyles(themeColors);
   const reports = [
     { 
       title: 'Monthly Overview', 
@@ -55,23 +98,27 @@ const ReportsScreen = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <Header 
         title="Reports & Insights" 
         showUserIcon={true}
       />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
-          <Text style={styles.sectionTitle}>Quick Insights</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Quick Insights</Text>
           {insights.map((insight, index) => (
-            <View key={index} style={styles.insightCard}>
-              <Text style={styles.insightTitle}>{insight.title}</Text>
+            <View key={index} style={[styles.insightCard, { 
+              backgroundColor: themeColors.cardBackground,
+              shadowColor: themeColors.shadow,
+              shadowOpacity: themeColors.shadowOpacity,
+            }]}>
+              <Text style={[styles.insightTitle, { color: themeColors.textSecondary }]}>{insight.title}</Text>
               <View style={styles.insightValue}>
-                <Text style={styles.insightAmount}>{insight.value}</Text>
+                <Text style={[styles.insightAmount, { color: themeColors.textPrimary }]}>{insight.value}</Text>
                 <View style={styles.insightChange}>
-                  <Text style={styles.changeText}>{insight.change}</Text>
+                  <Text style={[styles.changeText, { color: themeColors.textSecondary }]}>{insight.change}</Text>
                   <Text style={styles.trendIcon}>
                     {insight.trend === 'up' ? '↑' : '↓'}
                   </Text>
@@ -83,15 +130,22 @@ const ReportsScreen = ({ navigation }) => {
 
         {/* Available Reports */}
         <View style={styles.reportsContainer}>
-          <Text style={styles.sectionTitle}>Available Reports</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Available Reports</Text>
           {reports.map((report, index) => (
-            <TouchableOpacity key={index} style={styles.reportCard}>
-              <View style={styles.reportIcon}>
+            <TouchableOpacity 
+              key={index} 
+              style={[styles.reportCard, { 
+                backgroundColor: themeColors.cardBackground,
+                shadowColor: themeColors.shadow,
+                shadowOpacity: themeColors.shadowOpacity,
+              }]}
+            >
+              <View style={[styles.reportIcon, { backgroundColor: `${colors.primary}${isDark ? '33' : '20'}` }]}>
                 <Text style={styles.reportIconText}>{report.icon}</Text>
               </View>
               <View style={styles.reportInfo}>
-                <Text style={styles.reportTitle}>{report.title}</Text>
-                <Text style={styles.reportPeriod}>{report.period}</Text>
+                <Text style={[styles.reportTitle, { color: themeColors.textPrimary }]}>{report.title}</Text>
+                <Text style={[styles.reportPeriod, { color: themeColors.textSecondary }]}>{report.period}</Text>
               </View>
               <TouchableOpacity style={styles.viewButton}>
                 <Text style={styles.viewButtonText}>View</Text>
@@ -102,16 +156,16 @@ const ReportsScreen = ({ navigation }) => {
 
         {/* Export Options */}
         <View style={styles.exportSection}>
-          <Text style={styles.sectionTitle}>Export Options</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Export Options</Text>
           <View style={styles.exportOptions}>
             <TouchableOpacity style={styles.exportOption}>
-              <Text style={styles.exportOptionText}>📄 PDF Report</Text>
+              <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📄 PDF Report</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.exportOption}>
-              <Text style={styles.exportOptionText}>📊 Excel Data</Text>
+              <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📊 Excel Data</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.exportOption}>
-              <Text style={styles.exportOptionText}>📱 Share Summary</Text>
+              <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📱 Share Summary</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -120,10 +174,10 @@ const ReportsScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   exportButton: {
     width: 40,
@@ -143,14 +197,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 16,
   },
   statsContainer: {
     marginBottom: 32,
   },
   insightCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -162,7 +216,7 @@ const styles = StyleSheet.create({
   },
   insightTitle: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     marginBottom: 8,
   },
   insightValue: {
@@ -173,7 +227,7 @@ const styles = StyleSheet.create({
   insightAmount: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   insightChange: {
     flexDirection: 'row',
@@ -182,7 +236,7 @@ const styles = StyleSheet.create({
   },
   changeText: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   trendIcon: {
     fontSize: typography.fontSize.sm,
@@ -194,7 +248,7 @@ const styles = StyleSheet.create({
   reportCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -222,12 +276,12 @@ const styles = StyleSheet.create({
   reportTitle: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 4,
   },
   reportPeriod: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   viewButton: {
     paddingHorizontal: 16,
@@ -247,7 +301,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   exportOption: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -261,7 +315,7 @@ const styles = StyleSheet.create({
   exportOptionText: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
 });
 

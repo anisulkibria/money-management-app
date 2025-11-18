@@ -5,15 +5,15 @@ import { colors, typography } from '../constants';
 
 const AboutScreen = ({ navigation }) => {
   const handleWebsitePress = () => {
-    Linking.openURL('https://moneymanagementapp.com');
+    Linking.openURL('https://anisul.com');
   };
 
   const handlePrivacyPress = () => {
-    Linking.openURL('https://moneymanagementapp.com/privacy');
+    Linking.openURL('https://anisul.com/privacy');
   };
 
   const handleTermsPress = () => {
-    Linking.openURL('https://moneymanagementapp.com/terms');
+    Linking.openURL('https://anisul.com/terms');
   };
 
   return (
@@ -103,8 +103,8 @@ const AboutScreen = ({ navigation }) => {
           {/* Developer Info */}
           <View style={styles.developerContainer}>
             <Text style={styles.sectionTitle}>Developer</Text>
-            <Text style={styles.developerName}>Money Management Team</Text>
-            <Text style={styles.developerYear}>© 2024 Money Management App</Text>
+            <Text style={styles.developerName}>Anisul Kibria</Text>
+            <Text style={styles.developerYear}>© 2024 Anisul.com</Text>
             <Text style={styles.developerRights}>All rights reserved</Text>
           </View>
 

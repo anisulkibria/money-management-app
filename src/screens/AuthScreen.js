@@ -1,129 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, typography } from '../constants';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 const AuthScreen = ({ navigation }) => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
-          {/* App Logo and Headline */}
-          <View style={styles.header}>
-            <View style={styles.logoContainer}>
-              <Text style={styles.logo}>💰</Text>
+      <LinearGradient
+        colors={['#ffffff', '#f8f9fa']}
+        style={styles.gradient}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.content}>
+            <View style={styles.header}>
+              <View style={styles.logoContainer}>
+                <Text style={styles.logo}>💰</Text>
+              </View>
+              <Text style={styles.headline}>Welcome to Expense Tracker</Text>
+              <Text style={styles.subtitle}>Sign in to manage your finances</Text>
             </View>
-            <Text style={styles.headline}>Track your expenses, effortlessly.</Text>
-          </View>
 
-          {/* Segmented Control for Login/Sign Up */}
-          <View style={styles.segmentedControl}>
             <TouchableOpacity 
-              style={[styles.segment, isLogin && styles.activeSegment]}
-              onPress={() => setIsLogin(true)}
+              style={styles.googleButton}
+              onPress={() => navigation.navigate('Main')}
             >
-              <Text style={[styles.segmentText, isLogin && styles.activeSegmentText]}>
-                Log In
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.segment, !isLogin && styles.activeSegment]}
-              onPress={() => setIsLogin(false)}
-            >
-              <Text style={[styles.segmentText, !isLogin && styles.activeSegmentText]}>
-                Sign Up
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Email Input Field */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter your email"
-                placeholderTextColor={colors.textLightSecondary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
+              <Image 
+                source={{ uri: 'https://www.google.com/favicon.ico' }} 
+                style={styles.googleIcon}
               />
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>By continuing, you agree to our</Text>
+              <View style={styles.termsContainer}>
+                <TouchableOpacity>
+                  <Text style={styles.linkText}>Terms of Service</Text>
+                </TouchableOpacity>
+                <Text style={styles.footerText}> and </Text>
+                <TouchableOpacity>
+                  <Text style={styles.linkText}>Privacy Policy</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-
-          {/* Password Input Field */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                placeholder="Enter your password"
-                placeholderTextColor={colors.textLightSecondary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-              />
-              <TouchableOpacity 
-                style={styles.passwordToggle}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Text style={styles.passwordToggleText}>
-                  {showPassword ? '👁️' : '👁️‍🗨️'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Forgot Password Link */}
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          {/* Primary CTA Button */}
-          <TouchableOpacity 
-            style={styles.primaryButton}
-            onPress={() => navigation.navigate('Main')}
-          >
-            <Text style={styles.primaryButtonText}>
-              {isLogin ? 'Log In' : 'Sign Up'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Visual Separator */}
-          <View style={styles.separator}>
-            <View style={styles.separatorLine} />
-            <Text style={styles.separatorText}>or</Text>
-            <View style={styles.separatorLine} />
-          </View>
-
-          {/* Social Login Buttons */}
-          <TouchableOpacity style={styles.socialButton}>
-            <Text style={styles.socialButtonText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.appleButton}>
-            <Text style={styles.appleButtonText}>Continue with Apple</Text>
-          </TouchableOpacity>
-
-          {/* Link to toggle to Sign Up */}
-          <View style={styles.toggleContainer}>
-            <Text style={styles.toggleText}>
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-            </Text>
-            <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-              <Text style={styles.toggleLink}>
-                {isLogin ? 'Sign Up' : 'Log In'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 };
@@ -131,75 +56,99 @@ const AuthScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLightAlt,
+    backgroundColor: '#ffffff',
+  },
+  gradient: {
+    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: 12,
+    padding: 24,
   },
   content: {
     width: '100%',
-    maxWidth: 384,
+    maxWidth: 400,
     alignSelf: 'center',
   },
   header: {
     alignItems: 'center',
-    marginBottom: 24,
-    paddingHorizontal: 10,
+    marginBottom: 48,
+    paddingHorizontal: 24,
   },
   logoContainer: {
-    width: 64,
-    height: 64,
-    backgroundColor: `${colors.primaryDark}20`,
-    borderRadius: 16,
+    width: 100,
+    height: 100,
+    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
+    shadowColor: '#6366f1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 16,
+    elevation: 5,
   },
   logo: {
-    fontSize: 32,
+    fontSize: 48,
+    color: '#6366f1',
   },
   headline: {
-    fontSize: typography.fontSize['2xl'],
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1f2937',
     textAlign: 'center',
-    fontFamily: typography.fontFamily.regular,
+    marginBottom: 12,
   },
-  segmentedControl: {
+  subtitle: {
+    fontSize: 16,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  googleButton: {
     flexDirection: 'row',
-    height: 48,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 24,
-  },
-  segment: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
-  },
-  activeSegment: {
+    justifyContent: 'center',
     backgroundColor: 'white',
+    borderRadius: 14,
+    height: 60,
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  segmentText: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
-    fontFamily: typography.fontFamily.regular,
+  googleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 12,
   },
-  activeSegmentText: {
-    color: colors.textLightPrimary,
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#374151',
   },
-  inputContainer: {
-    marginBottom: 16,
+  footer: {
+    alignItems: 'center',
+    marginTop: 32,
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#9ca3af',
+    textAlign: 'center',
+  },
+  termsContainer: {
+    flexDirection: 'row',
+    marginTop: 4,
+  },
+  linkText: {
+    fontSize: 12,
+    color: '#6366f1',
   },
   label: {
     fontSize: typography.fontSize.base,

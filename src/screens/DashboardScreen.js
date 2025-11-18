@@ -1,5 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useMemo, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
@@ -7,12 +8,58 @@ import Header from '../components/Header';
 
 const DashboardScreen = () => {
   const navigation = useNavigation();
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDarkMode = darkMode || systemColorScheme === 'dark';
+
+  // Load saved dark mode preference on component mount
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
+
+  // Listen for focus to update theme when returning from settings
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const themeColors = useMemo(() => ({
+    background: isDarkMode ? '#000000' : colors.backgroundLight,
+    surface: isDarkMode ? '#121212' : colors.surfaceLight,
+    textPrimary: isDarkMode ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDarkMode ? '#A0A0A0' : colors.textLightSecondary,
+    border: isDarkMode ? '#333333' : colors.borderLight,
+    cardBackground: isDarkMode ? '#1E1E1E' : colors.surfaceLight,
+    progressBackground: isDarkMode ? '#333333' : '#E5E7EB',
+  }), [isDarkMode]);
+  
+  const styles = getStyles(themeColors);
   
   return (
     <SafeAreaView style={styles.container}>
       <Header title="Dashboard" showUserIcon={true} />
       <ScrollView style={styles.scrollView}>
-
         <View style={styles.content}>
           {/* Balance Card */}
           <View style={styles.balanceCard}>
@@ -139,10 +186,10 @@ const DashboardScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   scrollView: {
     flex: 1,
@@ -152,7 +199,7 @@ const styles = StyleSheet.create({
     paddingBottom: 100, // Space for bottom nav
   },
   balanceCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 24,
     marginBottom: 24,
@@ -165,13 +212,13 @@ const styles = StyleSheet.create({
   balanceLabel: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   balanceAmount: {
     fontSize: typography.fontSize['4xl'],
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     letterSpacing: -0.5,
   },
   balanceDetails: {
@@ -186,7 +233,7 @@ const styles = StyleSheet.create({
   balanceItemLabel: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   incomeAmount: {
@@ -212,7 +259,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   periodButton: {
     flexDirection: 'row',
@@ -234,7 +281,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   budgetCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -251,19 +298,19 @@ const styles = StyleSheet.create({
   budgetLabel: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   budgetAmount: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   budgetTotal: {
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   progressBar: {
     height: 12,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: theme.progressBackground,
     borderRadius: 6,
     overflow: 'hidden',
   },
@@ -275,12 +322,12 @@ const styles = StyleSheet.create({
   budgetRemaining: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     textAlign: 'right',
     marginTop: 8,
   },
   chartCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 20,
     shadowColor: '#000',
@@ -304,7 +351,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     shadowColor: '#000',
@@ -336,11 +383,11 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   transactionSubtitle: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   transactionAmount: {
     alignItems: 'flex-end',
@@ -357,7 +404,7 @@ const styles = StyleSheet.create({
   },
   transactionDate: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   fab: {
     position: 'absolute',

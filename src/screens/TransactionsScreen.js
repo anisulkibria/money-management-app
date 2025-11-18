@@ -1,12 +1,61 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
 
 const TransactionsScreen = () => {
   const navigation = useNavigation();
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+  
+  // Load saved dark mode preference on component mount
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
+  
+  // Listen for focus to update theme when returning from settings
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const themeColors = useMemo(() => ({
+    background: isDark ? '#000000' : colors.backgroundLight,
+    surface: isDark ? '#121212' : colors.surfaceLight,
+    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
+    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
+    border: isDark ? '#333333' : colors.borderLight,
+    shadow: isDark ? '#000' : '#000',
+    shadowOpacity: isDark ? 0.3 : 0.1,
+  }), [isDark]);
+  
+  const styles = getStyles(themeColors);
   
   const transactions = [
     { 
@@ -57,37 +106,49 @@ const TransactionsScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} edges={['top', 'right', 'left']}>
       <Header 
         title="Transactions" 
         showUserIcon={true}
-        rightComponent={
-          <TouchableOpacity style={styles.filterButton}>
-            <Text style={styles.filterIcon}>🔍</Text>
-          </TouchableOpacity>
-        }
       />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Summary Cards */}
         <View style={styles.summarySection}>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Total Income</Text>
+          <View style={[styles.summaryCard, { 
+            backgroundColor: themeColors.cardBackground,
+            shadowColor: themeColors.shadow,
+            shadowOpacity: themeColors.shadowOpacity,
+          }]}>
+            <Text style={[styles.summaryLabel, { color: themeColors.textSecondary }]}>Total Income</Text>
             <Text style={styles.incomeAmount}>+$3,000.00</Text>
           </View>
-          <View style={styles.summaryCard}>
-            <Text style={styles.summaryLabel}>Total Expenses</Text>
+          <View style={[styles.summaryCard, { 
+            backgroundColor: themeColors.cardBackground,
+            shadowColor: themeColors.shadow,
+            shadowOpacity: themeColors.shadowOpacity,
+          }]}>
+            <Text style={[styles.summaryLabel, { color: themeColors.textSecondary }]}>Total Expenses</Text>
             <Text style={styles.expenseAmount}>-$131.30</Text>
           </View>
         </View>
 
         {/* Transactions List */}
         <View style={styles.transactionsSection}>
-          <Text style={styles.sectionTitle}>All Transactions</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>All Transactions</Text>
+            <TouchableOpacity style={styles.filterButton}>
+              <Text style={styles.filterIcon}>🔍</Text>
+            </TouchableOpacity>
+          </View>
           {transactions.map((transaction) => (
             <TouchableOpacity 
               key={transaction.id} 
-              style={styles.transaction}
+              style={[styles.transaction, { 
+                backgroundColor: themeColors.cardBackground,
+                shadowColor: themeColors.shadow,
+                shadowOpacity: themeColors.shadowOpacity,
+              }]}
               onPress={() => {
                 // Navigate to transaction details (placeholder)
                 console.log('Transaction pressed:', transaction.title);
@@ -100,8 +161,8 @@ const TransactionsScreen = () => {
                 <Text style={styles.iconText}>{transaction.icon}</Text>
               </View>
               <View style={styles.transactionDetails}>
-                <Text style={styles.transactionTitle}>{transaction.title}</Text>
-                <Text style={styles.transactionSubtitle}>{transaction.subtitle}</Text>
+                <Text style={[styles.transactionTitle, { color: themeColors.textPrimary }]}>{transaction.title}</Text>
+                <Text style={[styles.transactionSubtitle, { color: themeColors.textSecondary }]}>{transaction.subtitle}</Text>
               </View>
               <View style={styles.transactionAmount}>
                 <Text style={[
@@ -110,7 +171,7 @@ const TransactionsScreen = () => {
                 ]}>
                   {transaction.amount}
                 </Text>
-                <Text style={styles.transactionDate}>{transaction.date}</Text>
+                <Text style={[styles.transactionDate, { color: themeColors.textSecondary }]}>{transaction.date}</Text>
               </View>
             </TouchableOpacity>
           ))}
@@ -128,16 +189,16 @@ const TransactionsScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   filterButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -156,18 +217,18 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
   summaryLabel: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
     marginBottom: 4,
   },
   incomeAmount: {
@@ -186,20 +247,20 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 16,
   },
   transaction: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
-    shadowColor: '#000',
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
@@ -207,7 +268,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: `${colors.primary}20`,
+    backgroundColor: `${colors.primary}${theme.background === '#000000' ? '33' : '20'}`,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -226,11 +287,9 @@ const styles = StyleSheet.create({
   transactionTitle: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
   },
   transactionSubtitle: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
   },
   transactionAmount: {
     alignItems: 'flex-end',
@@ -247,7 +306,6 @@ const styles = StyleSheet.create({
   },
   transactionDate: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
   },
   fab: {
     position: 'absolute',
@@ -259,7 +317,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,

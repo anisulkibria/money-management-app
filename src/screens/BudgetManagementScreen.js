@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -6,6 +8,46 @@ import { colors, typography } from '../constants';
 import Header from '../components/Header';
 
 const BudgetManagementScreen = ({ navigation }) => {
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+  
+  // Load saved dark mode preference on component mount and listen for changes
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+
+    // Add listener for dark mode changes
+    const unsubscribe = navigation.addListener('focus', loadDarkModePreference);
+    
+    // Cleanup listener on unmount
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]);
+  
+  // Theme colors
+  const themeColors = useMemo(() => ({
+    background: isDark ? '#000000' : colors.backgroundLight,
+    surface: isDark ? '#121212' : colors.surfaceLight,
+    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
+    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
+    border: isDark ? '#333333' : colors.borderLight,
+    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
+    progressBackground: isDark ? '#333333' : '#E5E7EB',
+  }), [isDark]);
+  
+  const styles = getStyles(themeColors);
   const budgets = [
     { 
       category: 'Monthly Budget', 
@@ -51,46 +93,50 @@ const BudgetManagementScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <Header 
         title="Budget Management" 
         showUserIcon={true}
       />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={[styles.content, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
         {/* Overview Card */}
-        <View style={styles.overviewCard}>
-          <Text style={styles.overviewTitle}>Total Monthly Budget</Text>
-          <Text style={styles.overviewAmount}>$2,000</Text>
+        <View style={[styles.overviewCard, { backgroundColor: themeColors.cardBackground }]}>
+          <Text style={[styles.overviewTitle, { color: themeColors.textPrimary }]}>Total Monthly Budget</Text>
+          <Text style={[styles.overviewAmount, { color: themeColors.textPrimary }]}>$2,000</Text>
           <View style={styles.overviewStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Spent</Text>
-              <Text style={styles.statValue}>$1,250</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Spent</Text>
+              <Text style={[styles.statValue, { color: themeColors.textPrimary }]}>$1,250</Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Remaining</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Remaining</Text>
               <Text style={[styles.statValue, { color: colors.income }]}>$750</Text>
             </View>
           </View>
         </View>
 
         {/* Budget List */}
-        <Text style={styles.sectionTitle}>Budget Categories</Text>
+        <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Budget Categories</Text>
         {budgets.map((budget, index) => (
-          <View key={index} style={styles.budgetCard}>
+          <View key={index} style={[styles.budgetCard, { 
+            backgroundColor: themeColors.cardBackground,
+            shadowColor: isDark ? '#000' : '#000',
+            shadowOpacity: isDark ? 0.3 : 0.1
+          }]}>
             <View style={styles.budgetHeader}>
-              <Text style={styles.budgetCategory}>{budget.category}</Text>
+              <Text style={[styles.budgetCategory, { color: themeColors.textPrimary }]}>{budget.category}</Text>
               <Text style={[styles.budgetStatus, { color: getStatusColor(budget.status) }]}>
                 {budget.status === 'over' ? 'Over Budget' : budget.status === 'warning' ? 'Warning' : 'On Track'}
               </Text>
             </View>
             
             <View style={styles.budgetAmounts}>
-              <Text style={styles.budgetSpent}>{budget.spent} / {budget.total}</Text>
-              <Text style={styles.budgetRemaining}>{budget.remaining} left</Text>
+              <Text style={[styles.budgetSpent, { color: themeColors.textPrimary }]}>{budget.spent} / {budget.total}</Text>
+              <Text style={[styles.budgetRemaining, { color: themeColors.textSecondary }]}>{budget.remaining} left</Text>
             </View>
 
-            <View style={styles.progressBar}>
+            <View style={[styles.progressBar, { backgroundColor: themeColors.progressBackground }]}>
               <View 
                 style={[
                   styles.progressFill, 
@@ -103,11 +149,11 @@ const BudgetManagementScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.budgetActions}>
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionText}>Edit</Text>
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: `${colors.primary}20` }]}>
+                <Text style={[styles.actionText, { color: colors.primary }]}>Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.actionButton}>
-                <Text style={styles.actionText}>View Details</Text>
+              <TouchableOpacity style={[styles.actionButton, { backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5' }]}>
+                <Text style={[styles.actionText, { color: isDark ? '#FFFFFF' : colors.textLightPrimary }]}>View Details</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -125,10 +171,10 @@ const BudgetManagementScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundLight,
+    backgroundColor: theme.background,
   },
   addButton: {
     width: 40,
@@ -191,11 +237,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
     marginBottom: 16,
   },
   budgetCard: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: theme.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -214,7 +260,7 @@ const styles = StyleSheet.create({
   budgetCategory: {
     fontSize: typography.fontSize.base,
     fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   budgetStatus: {
     fontSize: typography.fontSize.sm,
@@ -227,15 +273,15 @@ const styles = StyleSheet.create({
   },
   budgetSpent: {
     fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
+    color: theme.textPrimary,
   },
   budgetRemaining: {
     fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
+    color: theme.textSecondary,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: theme.progressBackground,
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: 12,
@@ -252,11 +298,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: `${colors.primary}20`,
   },
   actionText: {
     fontSize: typography.fontSize.sm,
-    color: colors.primary,
     fontWeight: typography.fontWeight.medium,
   },
   fab: {

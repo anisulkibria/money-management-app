@@ -1,13 +1,53 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Alert } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Alert, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = ({ navigation }) => {
   const [notifications, setNotifications] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
+  const systemColorScheme = useColorScheme();
+  const isDarkMode = darkMode || systemColorScheme === 'dark';
+
+  // Theme colors based on dark mode
+  const themeColors = useMemo(() => ({
+    background: isDarkMode ? '#000000' : colors.backgroundLight, // Pure black for dark mode
+    backgroundAlt: isDarkMode ? '#111111' : colors.backgroundLightAlt, // Slightly lighter black for alt
+    surface: isDarkMode ? '#1A1A1A' : colors.surfaceLight, // Dark gray for surfaces
+    text: isDarkMode ? '#FFFFFF' : colors.textLight, // White text for dark mode
+    textPrimary: isDarkMode ? '#FFFFFF' : colors.textLightPrimary, // White for primary text
+    textSecondary: isDarkMode ? '#B3B3B3' : colors.textLightSecondary, // Light gray for secondary text
+    border: isDarkMode ? '#333333' : colors.borderLight, // Dark gray for borders
+  }), [isDarkMode]);
+
+  // Toggle dark mode and save preference
+  const toggleDarkMode = async (value) => {
+    try {
+      setDarkMode(value);
+      await AsyncStorage.setItem('darkMode', JSON.stringify(value));
+    } catch (error) {
+      console.error('Error saving dark mode preference:', error);
+    }
+  };
+
+  // Load saved dark mode preference on component mount
+  React.useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
 
   const handleEditProfile = () => {
     Alert.alert('Edit Profile', 'Profile editing feature coming soon!');
@@ -43,6 +83,8 @@ const SettingsScreen = ({ navigation }) => {
       navigation.navigate('Categories');
     } else if (label === 'Currency') {
       navigation.navigate('Currency', { currentCurrency: 'USD' });
+    } else if (label === 'App Version') {
+      Alert.alert('App Version', 'Current version: 1.0.0');
     } else {
       Alert.alert(label, `${label} feature coming soon!`);
     }
@@ -50,20 +92,10 @@ const SettingsScreen = ({ navigation }) => {
 
   const settingsSections = [
     {
-      title: 'Account',
-      items: [
-        { icon: '👤', label: 'Profile Settings', type: 'navigation' },
-        { icon: '🔐', label: 'Change Password', type: 'navigation' },
-      ]
-    },
-    {
-      title: 'Preferences',
       items: [
         { icon: '🏷️', label: 'Categories', type: 'navigation' },
-        { icon: '🔔', label: 'Push Notifications', type: 'toggle', value: notifications, onToggle: setNotifications },
-        { icon: '🌙', label: 'Dark Mode', type: 'toggle', value: darkMode, onToggle: setDarkMode },
+        { icon: '🌙', label: 'Dark Mode', type: 'toggle', value: isDarkMode, onToggle: toggleDarkMode },
         { icon: '💱', label: 'Currency', type: 'navigation', value: 'USD' },
-        { icon: '📅', label: 'Date Format', type: 'navigation', value: 'MM/DD/YYYY' },
       ]
     },
     {
@@ -78,7 +110,6 @@ const SettingsScreen = ({ navigation }) => {
     {
       title: 'Support',
       items: [
-        { icon: '❓', label: 'Help Center', type: 'navigation' },
         { icon: '📧', label: 'Contact Support', type: 'navigation' },
         { icon: '⭐', label: 'Rate App', type: 'navigation' },
         { icon: '📋', label: 'Terms of Service', type: 'navigation' },
@@ -87,17 +118,170 @@ const SettingsScreen = ({ navigation }) => {
     {
       title: 'About',
       items: [
-        { icon: 'ℹ️', label: 'App Version', type: 'info', value: '1.0.0' },
+        { icon: 'ℹ️', label: 'App Version', type: 'navigation', value: '1.0.0' },
         { icon: '🏢', label: 'About Us', type: 'navigation' },
       ]
     },
   ];
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <Header title="Settings" showUserIcon={false} />
+const getStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
+  },
+    profileSection: {
+      backgroundColor: themeColors.surface,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 24,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    profileInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    profileAvatar: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    profileAvatarText: {
+      color: 'white',
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.bold,
+    },
+    profileDetails: {
+      flex: 1,
+    },
+    profileName: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.semibold,
+      color: themeColors.textPrimary,
+      marginBottom: 4,
+    },
+    profileEmail: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+    },
+    editProfileButton: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: colors.primary,
+    },
+    editProfileText: {
+      color: 'white',
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.medium,
+    },
+    section: {
+      marginBottom: 24,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.semibold,
+      color: themeColors.textSecondary,
+      marginBottom: 8,
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    sectionContent: {
+      backgroundColor: themeColors.surface,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    settingItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: 16,
+    },
+    settingItemWithBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: themeColors.border,
+    },
+    settingLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    settingIcon: {
+      fontSize: 20,
+      marginRight: 12,
+    },
+    settingLabel: {
+      fontSize: typography.fontSize.base,
+      color: themeColors.textPrimary,
+    },
+    settingRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    settingValue: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+      marginRight: 8,
+    },
+    chevron: {
+      fontSize: 20,
+      color: themeColors.textSecondary,
+    },
+    signOutButton: {
+      backgroundColor: colors.error,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+      marginTop: 16,
+      marginBottom: 32,
+    },
+    signOutText: {
+      color: 'white',
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.bold,
+    },
+    footer: {
+      alignItems: 'center',
+      marginBottom: 32,
+    },
+    footerText: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+      marginBottom: 4,
+    },
+    footerSubtext: {
+      fontSize: typography.fontSize.xs,
+      color: themeColors.textSecondary,
+      opacity: 0.7,
+    },
+  });
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+  const styles = getStyles(themeColors);
+  
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
+      <ScrollView 
+        style={[styles.content, { backgroundColor: themeColors.background }]} 
+        showsVerticalScrollIndicator={false}
+      >
         {/* Profile Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileInfo}>
@@ -109,20 +293,24 @@ const SettingsScreen = ({ navigation }) => {
               <Text style={styles.profileEmail}>john.doe@example.com</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.editProfileButton} onPress={handleEditProfile}>
-            <Text style={styles.editProfileText}>Edit</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Settings Sections */}
         {settingsSections.map((section, sectionIndex) => (
           <View key={sectionIndex} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+            {section.title && (
+              <Text style={styles.sectionTitle}>
+                {section.title}
+              </Text>
+            )}
             <View style={styles.sectionContent}>
               {section.items.map((item, itemIndex) => (
                 <TouchableOpacity 
                   key={itemIndex} 
-                  style={styles.settingItem}
+                  style={[
+                    styles.settingItem,
+                    itemIndex < section.items.length - 1 && styles.settingItemWithBorder
+                  ]}
                   onPress={() => item.type === 'navigation' ? handleSettingPress(item.label) : null}
                   disabled={item.type !== 'navigation'}
                 >
@@ -167,152 +355,5 @@ const SettingsScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  profileInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  profileAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  profileAvatarText: {
-    color: 'white',
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-  },
-  profileDetails: {
-    flex: 1,
-  },
-  profileName: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
-    marginBottom: 4,
-  },
-  profileEmail: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-  },
-  editProfileButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-  },
-  editProfileText: {
-    color: 'white',
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightSecondary,
-    marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  sectionContent: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  settingIcon: {
-    fontSize: 20,
-    marginRight: 12,
-  },
-  settingLabel: {
-    fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
-  },
-  settingRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  settingValue: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-    marginRight: 8,
-  },
-  chevron: {
-    fontSize: 20,
-    color: colors.textLightSecondary,
-  },
-  signOutButton: {
-    backgroundColor: colors.expense,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 32,
-  },
-  signOutText: {
-    color: 'white',
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.bold,
-  },
-  footer: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  footerText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-    marginBottom: 4,
-  },
-  footerSubtext: {
-    fontSize: typography.fontSize.xs,
-    color: colors.textLightSecondary,
-    opacity: 0.7,
-  },
-});
 
 export default SettingsScreen;

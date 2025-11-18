@@ -5,15 +5,15 @@ import { colors, typography } from '../constants';
 
 const SupportScreen = ({ navigation }) => {
   const handleEmailPress = () => {
-    Linking.openURL('mailto:support@moneymanagementapp.com');
+    Linking.openURL('mailto:a@anisul.com');
   };
 
   const handleWebsitePress = () => {
-    Linking.openURL('https://moneymanagementapp.com');
+    Linking.openURL('https://anisul.com');
   };
 
   const handleFAQPress = () => {
-    Linking.openURL('https://moneymanagementapp.com/faq');
+    Linking.openURL('https://anisul.com/faq');
   };
 
   return (
@@ -83,14 +83,14 @@ const SupportScreen = ({ navigation }) => {
             <View style={styles.contactItem}>
               <Text style={styles.contactLabel}>Email:</Text>
               <TouchableOpacity onPress={handleEmailPress}>
-                <Text style={styles.contactValue}>support@moneymanagementapp.com</Text>
+                <Text style={styles.contactValue}>a@anisul.com</Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.contactItem}>
               <Text style={styles.contactLabel}>Website:</Text>
               <TouchableOpacity onPress={handleWebsitePress}>
-                <Text style={styles.contactValue}>www.moneymanagementapp.com</Text>
+                <Text style={styles.contactValue}>www.anisul.com</Text>
               </TouchableOpacity>
             </View>
 
