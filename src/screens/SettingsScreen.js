@@ -1,53 +1,14 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Alert, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Switch, Alert, StatusBar, useColorScheme } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../theme/theme';
 
 const SettingsScreen = ({ navigation }) => {
   const [notifications, setNotifications] = React.useState(true);
-  const [darkMode, setDarkMode] = React.useState(false);
-  const systemColorScheme = useColorScheme();
-  const isDarkMode = darkMode || systemColorScheme === 'dark';
-
-  // Theme colors based on dark mode
-  const themeColors = useMemo(() => ({
-    background: isDarkMode ? '#000000' : colors.backgroundLight, // Pure black for dark mode
-    backgroundAlt: isDarkMode ? '#111111' : colors.backgroundLightAlt, // Slightly lighter black for alt
-    surface: isDarkMode ? '#1A1A1A' : colors.surfaceLight, // Dark gray for surfaces
-    text: isDarkMode ? '#FFFFFF' : colors.textLight, // White text for dark mode
-    textPrimary: isDarkMode ? '#FFFFFF' : colors.textLightPrimary, // White for primary text
-    textSecondary: isDarkMode ? '#B3B3B3' : colors.textLightSecondary, // Light gray for secondary text
-    border: isDarkMode ? '#333333' : colors.borderLight, // Dark gray for borders
-  }), [isDarkMode]);
-
-  // Toggle dark mode and save preference
-  const toggleDarkMode = async (value) => {
-    try {
-      setDarkMode(value);
-      await AsyncStorage.setItem('darkMode', JSON.stringify(value));
-    } catch (error) {
-      console.error('Error saving dark mode preference:', error);
-    }
-  };
-
-  // Load saved dark mode preference on component mount
-  React.useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        const savedDarkMode = await AsyncStorage.getItem('darkMode');
-        if (savedDarkMode !== null) {
-          setDarkMode(JSON.parse(savedDarkMode));
-        }
-      } catch (error) {
-        console.error('Error loading dark mode preference:', error);
-      }
-    };
-
-    loadDarkModePreference();
-  }, []);
+  const { isDark, colors: themeColors, toggleDarkMode } = useTheme();
 
   const handleEditProfile = () => {
     Alert.alert('Edit Profile', 'Profile editing feature coming soon!');
@@ -94,7 +55,7 @@ const SettingsScreen = ({ navigation }) => {
     {
       items: [
         { icon: '🏷️', label: 'Categories', type: 'navigation' },
-        { icon: '🌙', label: 'Dark Mode', type: 'toggle', value: isDarkMode, onToggle: toggleDarkMode },
+        { icon: '🌙', label: 'Dark Mode', type: 'toggle', value: isDark, onToggle: toggleDarkMode },
         { icon: '💱', label: 'Currency', type: 'navigation', value: 'USD' },
       ]
     },
@@ -277,7 +238,19 @@ const getStyles = (theme) => StyleSheet.create({
   const styles = getStyles(themeColors);
   
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
+    <SafeAreaView 
+      style={{ 
+        flex: 1, 
+        backgroundColor: themeColors.background,
+        // Apply dark mode to safe area edges
+        edges: ['top', 'left', 'right', 'bottom']
+      }}
+    >
+      <StatusBar 
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.background}
+        translucent={false}
+      />
       <ScrollView 
         style={[styles.content, { backgroundColor: themeColors.background }]} 
         showsVerticalScrollIndicator={false}

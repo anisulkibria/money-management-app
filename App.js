@@ -1,16 +1,16 @@
 import React from 'react';
-import { NavigationContainer, useTheme } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
-import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
+import { ThemeProvider, useTheme } from './src/theme/theme';
 
 function AppContent() {
-  const colorScheme = useColorScheme();
+  const { isDark } = useTheme();
   
   return (
     <>
-      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <AppNavigator />
     </>
   );
@@ -19,9 +19,11 @@ function AppContent() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <AppContent />
-      </NavigationContainer>
+      <ThemeProvider>
+        <NavigationContainer>
+          <AppContent />
+        </NavigationContainer>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

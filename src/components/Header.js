@@ -1,35 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import UserIcon from './UserIcon';
 import { colors, typography } from '../constants';
+import { useTheme } from '../theme/theme';
 
 const Header = ({ title, showUserIcon = false, leftComponent = null, rightComponent = null }) => {
-  const systemColorScheme = useColorScheme();
-  const [darkMode, setDarkMode] = useState(false);
-  const isDark = darkMode || systemColorScheme === 'dark';
-  
-  // Load saved dark mode preference on component mount
-  useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        const savedDarkMode = await AsyncStorage.getItem('darkMode');
-        if (savedDarkMode !== null) {
-          setDarkMode(JSON.parse(savedDarkMode));
-        }
-      } catch (error) {
-        console.error('Error loading dark mode preference:', error);
-      }
-    };
-
-    loadDarkModePreference();
-  }, []);
-
-  const themeColors = {
-    background: isDark ? '#121212' : '#FFFFFF',
-    text: isDark ? '#FFFFFF' : colors.textLightPrimary,
-    border: isDark ? '#333333' : colors.borderLight,
-  };
+  const { colors: themeColors } = useTheme();
 
   return (
     <View style={styles.container(themeColors)}>
@@ -54,7 +30,7 @@ const styles = StyleSheet.create({
   title: (theme) => ({
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
-    color: theme.text,
+    color: theme.textPrimary,
     flex: 1,
     textAlign: 'center',
   }),

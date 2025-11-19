@@ -1,48 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal, useColorScheme } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
+import { useTheme } from '../theme/theme';
 
 const AddTransactionScreen = ({ navigation }) => {
-  const systemColorScheme = useColorScheme();
-  const [darkMode, setDarkMode] = useState(false);
-  const isDark = darkMode || systemColorScheme === 'dark';
-  
-  // Load saved dark mode preference on component mount
-  useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        const savedDarkMode = await AsyncStorage.getItem('darkMode');
-        if (savedDarkMode !== null) {
-          setDarkMode(JSON.parse(savedDarkMode));
-        }
-      } catch (error) {
-        console.error('Error loading dark mode preference:', error);
-      }
-    };
-
-    loadDarkModePreference();
-  }, []);
-  
-  // Theme colors
-  const themeColors = useMemo(() => ({
-    background: isDark ? '#000000' : colors.backgroundLight,
-    surface: isDark ? '#121212' : colors.surfaceLight,
-    cardBackground: isDark ? '#1E1E1E' : colors.surfaceLight,
-    textPrimary: isDark ? '#FFFFFF' : colors.textLightPrimary,
-    textSecondary: isDark ? '#B3B3B3' : colors.textLightSecondary,
-    border: isDark ? '#333333' : colors.borderLight,
-    inputBackground: isDark ? '#1E1E1E' : '#FFFFFF',
-    inputText: isDark ? '#FFFFFF' : colors.textLightPrimary,
-    placeholderText: isDark ? '#888888' : '#999999',
-    shadow: isDark ? '#000' : '#000',
-    shadowOpacity: isDark ? 0.3 : 0.1,
-  }), [isDark]);
-
-  const [transactionType, setTransactionType] = useState('expense'); // 'income' or 'expense'
+  const { colors: themeColors } = useTheme();
+        const [transactionType, setTransactionType] = useState('expense'); // 'income' or 'expense'
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -617,7 +583,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   pickerScroll: {
     height: 200,
-    backgroundColor: colors.borderLight,
+    backgroundColor: theme.cardBackground,
     borderRadius: 8,
   },
   pickerItem: {
@@ -635,7 +601,7 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.textPrimary,
   },
   pickerItemTextSelected: {
-    color: theme.placeholderText,
+    color: '#FFFFFF', // Always white text when selected (on primary color background)
     fontWeight: typography.fontWeight.semibold,
   },
   modalActions: {

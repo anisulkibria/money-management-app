@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useTheme } from '../theme/theme';
 import WelcomeScreen from '../screens/WelcomeScreen';
 import AuthScreen from '../screens/AuthScreen';
 import OnboardingScreen1 from '../screens/OnboardingScreen1';
@@ -68,6 +69,18 @@ const MainTabs = () => {
 };
 
 const AppNavigator = () => {
+  const { isDark, colors: themeColors } = useTheme();
+  
+  const screenOptions = {
+    headerStyle: {
+      backgroundColor: themeColors.background,
+    },
+    headerTintColor: themeColors.textPrimary,
+    headerTitleStyle: {
+      color: themeColors.textPrimary,
+    },
+  };
+
   return (
     <Stack.Navigator 
       screenOptions={{
@@ -113,6 +126,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Add Expense',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -121,6 +135,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Add Income',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -129,6 +144,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Add Budget',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -137,6 +153,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Add Transaction',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -145,6 +162,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Settings',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -153,6 +171,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Support',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -161,6 +180,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'About',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -169,6 +189,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Categories',
+          ...screenOptions,
         }}
       />
       <Stack.Screen 
@@ -177,6 +198,7 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Currency',
+          ...screenOptions,
         }}
       />
     </Stack.Navigator>

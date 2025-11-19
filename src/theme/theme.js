@@ -1,4 +1,60 @@
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors } from '../constants';
+
+const ThemeContext = createContext();
+
+export const ThemeProvider = ({ children }) => {
+  const systemColorScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(false);
+  const isDark = darkMode || systemColorScheme === 'dark';
+
+  // Load saved dark mode preference on component mount
+  useEffect(() => {
+    const loadDarkModePreference = async () => {
+      try {
+        const savedDarkMode = await AsyncStorage.getItem('darkMode');
+        if (savedDarkMode !== null) {
+          setDarkMode(JSON.parse(savedDarkMode));
+        }
+      } catch (error) {
+        console.error('Error loading dark mode preference:', error);
+      }
+    };
+
+    loadDarkModePreference();
+  }, []);
+
+  const toggleDarkMode = async (value) => {
+    try {
+      await AsyncStorage.setItem('darkMode', JSON.stringify(value));
+      setDarkMode(value);
+    } catch (error) {
+      console.error('Error saving dark mode preference:', error);
+    }
+  };
+
+  const themeValue = {
+    isDark,
+    colors: getThemeColors(isDark),
+    toggleDarkMode,
+  };
+
+  return (
+    <ThemeContext.Provider value={themeValue}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
 
 export const getThemeColors = (isDark) => ({
   // Background colors
@@ -26,38 +82,3 @@ export const getThemeColors = (isDark) => ({
   success: colors.income,
   error: colors.expense,
 });
-
-export const useTheme = () => {
-  const systemColorScheme = useColorScheme();
-  const [darkMode, setDarkMode] = useState(false);
-  const isDark = darkMode || systemColorScheme === 'dark';
-
-  // Load saved dark mode preference on component mount
-  useEffect(() => {
-    const loadDarkModePreference = async () => {
-      try {
-        const savedDarkMode = await AsyncStorage.getItem('darkMode');
-        if (savedDarkMode !== null) {
-          setDarkMode(JSON.parse(savedDarkMode));
-        }
-      } catch (error) {
-        console.error('Error loading dark mode preference:', error);
-      }
-    };
-
-    loadDarkModePreference();
-  }, []);
-
-  return {
-    isDark,
-    colors: getThemeColors(isDark),
-    toggleDarkMode: async (value) => {
-      try {
-        await AsyncStorage.setItem('darkMode', JSON.stringify(value));
-        setDarkMode(value);
-      } catch (error) {
-        console.error('Error saving dark mode preference:', error);
-      }
-    }
-  };
-};
