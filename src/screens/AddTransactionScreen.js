@@ -1,19 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, typography } from '../constants';
 import { useTheme } from '../theme/theme';
 
 const AddTransactionScreen = ({ navigation }) => {
   const { colors: themeColors } = useTheme();
-        const [transactionType, setTransactionType] = useState('expense'); // 'income' or 'expense'
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const route = useRoute();
+  const navigationHook = useNavigation();
+  
+  // Check if we're in edit mode
+  const isEditMode = route.params?.transaction !== undefined;
+  const editingTransaction = route.params?.transaction;
+  
+  const [transactionType, setTransactionType] = useState(isEditMode ? editingTransaction?.type : 'expense'); // 'income' or 'expense'
+  const [amount, setAmount] = useState(isEditMode ? editingTransaction?.amount.toString() : '');
+  const [description, setDescription] = useState(isEditMode ? editingTransaction?.title : '');
+  const [category, setCategory] = useState(isEditMode ? editingTransaction?.subtitle : '');
+  const [date, setDate] = useState(isEditMode ? editingTransaction?.date : new Date().toISOString().split('T')[0]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [tempDate, setTempDate] = useState(new Date());
+
+  // Update header title based on mode
+  useEffect(() => {
+    navigationHook.setOptions({
+      title: isEditMode ? 'Edit Transaction' : 'Add Transaction'
+    });
+  }, [isEditMode, navigationHook]);
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete Transaction',
+      'Are you sure you want to delete this transaction? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Here you would typically delete from your backend/state management
+            Alert.alert(
+              'Transaction Deleted',
+              'The transaction has been deleted successfully.',
+              [
+                {
+                  text: 'OK',
+                  onPress: () => navigationHook.goBack()
+                }
+              ]
+            );
+          }
+        }
+      ]
+    );
+  };
 
   const expenseCategories = [
     'Food & Dining',
@@ -88,20 +132,28 @@ const AddTransactionScreen = ({ navigation }) => {
 
     // Here you would typically save to your backend/state management
     const transactionData = {
+      id: isEditMode ? editingTransaction.id : Date.now().toString(),
       type: transactionType,
       amount: parseFloat(amount),
-      description,
-      category,
+      title: description,
+      subtitle: category,
       date,
+      icon: transactionType === 'income' ? '💰' : '💸',
     };
 
+    const actionType = isEditMode ? 'updated' : 'added';
+    const actionTitle = isEditMode ? 'Transaction Updated' : 'Transaction Added';
+    const actionMessage = isEditMode 
+      ? `${transactionType === 'income' ? 'Income' : 'Expense'} of $${amount} has been updated successfully!`
+      : `${transactionType === 'income' ? 'Income' : 'Expense'} of $${amount} has been recorded successfully!`;
+
     Alert.alert(
-      'Transaction Added',
-      `${transactionType === 'income' ? 'Income' : 'Expense'} of $${amount} has been recorded successfully!`,
+      actionTitle,
+      actionMessage,
       [
         {
           text: 'OK',
-          onPress: () => navigation.goBack()
+          onPress: () => navigationHook.goBack()
         }
       ]
     );
@@ -253,6 +305,13 @@ const AddTransactionScreen = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
+
+      {/* Delete Button - Only show in edit mode */}
+      {isEditMode && (
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <Text style={styles.deleteButtonText}>Delete Transaction</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Big Save Button */}
       <TouchableOpacity style={styles.bottomSaveButton} onPress={handleSave}>
@@ -541,6 +600,26 @@ const getStyles = (theme) => StyleSheet.create({
     color: '#FFFFFF',
     fontSize: typography.fontSize.xl,
     fontWeight: typography.fontWeight.bold,
+  },
+  deleteButton: {
+    backgroundColor: '#EF4444',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 12,
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
   },
   // Date Picker Modal Styles
   modalOverlay: {

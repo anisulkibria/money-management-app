@@ -31,7 +31,7 @@ const CategoriesScreen = ({ navigation }) => {
     type: 'expense'
   });
 
-  const icons = ['🛒', '🚗', '🧾', '🎮', '🍔', '🏥', '🛍️', '📚', '💰', '💻', '📈', '🏠', '✈️', '🎯', '🎨', '🏃', '🍕', '☕', '🎬', '🎵'];
+  const icons = ['🛒', '🚗', '🧾', '🎮', '🍔', '🏥', '🛍️', '📚', '💰', '💻', '📈', '🏠', '✈️', '🎯', '🎨', '🏃', '🍕', '☕', '🎬', '🎵', '🍷', '🍳', '🚿', '🧴', '💊', '🦷', '👕', '👟', '🎁', '🌱', '🚇', '🚌', '⛽', '🏋️', '🧘', '📱', '💡', '🔧', '🔑', '📄', '📝', '🗂️', '📌', '📎', '🖊️', '📐', '🔬', '🔭', '🎪', '🎭', '🖼️', '🎲', '🎸', '🎹', '🥁', '🎺', '🎷', '🎻', '🎤', '🎧', '📻', '📺', '📷', '📸', '🎥', '📼', '💾', '💿', '📀', '🖥️', '⌨️', '🖱️', '🖨️', '📠', '📞', '⌚', '🔋', '🔌', '🔦', '🕯️', '🪔', '🧯', '🛢️', '', '⚒️', '🛠️', '⛏️', '🔩', '⚙️', '🧱', '⛓️', '🧲', '🔫', '💣', '🧨', '🪓', '🔪', '🗡️', '🛡️', '🚬', '⚰️', '⚱️', '🏺', '🔮', '📿', '🧿', '💎', '💍', '👑'];
   const iconColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#4CAF50', '#2196F3', '#FF9800', '#6366F1'];
 
   const handleAddCategory = () => {
@@ -111,7 +111,7 @@ const CategoriesScreen = ({ navigation }) => {
       width: '48%',
       backgroundColor: themeColors.surface,
       borderRadius: 12,
-      padding: 16,
+      padding: 12,
       shadowColor: themeColors.shadow,
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: themeColors.shadowOpacity,
@@ -119,28 +119,36 @@ const CategoriesScreen = ({ navigation }) => {
       elevation: 2,
       position: 'relative',
     },
+    categoryContent: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
     categoryIcon: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
-      marginBottom: 12,
+      marginRight: 10,
     },
     categoryIconText: {
-      fontSize: 24,
+      fontSize: 16,
+    },
+    categoryTextContainer: {
+      flex: 1,
     },
     categoryName: {
-      fontSize: typography.fontSize.base,
+      fontSize: typography.fontSize.xs,
       fontWeight: typography.fontWeight.semibold,
       color: themeColors.textPrimary,
-      marginBottom: 8,
+      marginBottom: 2,
     },
     categoryType: {
-      marginBottom: 8,
+      marginBottom: 6,
     },
     typeText: {
-      fontSize: typography.fontSize.sm,
+      fontSize: typography.fontSize.xs,
       fontWeight: typography.fontWeight.medium,
     },
     deleteButton: {
@@ -190,33 +198,33 @@ const CategoriesScreen = ({ navigation }) => {
     modalContent: {
       backgroundColor: themeColors.surface,
       borderRadius: 16,
-      padding: 24,
+      padding: 16,
       width: '90%',
       maxHeight: '80%',
     },
     modalTitle: {
-      fontSize: typography.fontSize.xl,
+      fontSize: typography.fontSize.lg,
       fontWeight: typography.fontWeight.bold,
       color: themeColors.textPrimary,
-      marginBottom: 20,
+      marginBottom: 16,
       textAlign: 'center',
     },
     formGroup: {
-      marginBottom: 20,
+      marginBottom: 16,
     },
     label: {
-      fontSize: typography.fontSize.base,
+      fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       color: themeColors.textPrimary,
-      marginBottom: 8,
+      marginBottom: 6,
     },
     input: {
       borderWidth: 1,
       borderColor: themeColors.border,
       borderRadius: 8,
       paddingHorizontal: 12,
-      paddingVertical: 8,
-      fontSize: typography.fontSize.base,
+      paddingVertical: 6,
+      fontSize: typography.fontSize.sm,
       color: themeColors.textPrimary,
       backgroundColor: themeColors.background,
     },
@@ -245,12 +253,12 @@ const CategoriesScreen = ({ navigation }) => {
     },
     iconSelector: {
       flexDirection: 'row',
-      gap: 8,
+      gap: 6,
     },
     iconOption: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
       backgroundColor: themeColors.border,
       justifyContent: 'center',
       alignItems: 'center',
@@ -259,17 +267,17 @@ const CategoriesScreen = ({ navigation }) => {
       backgroundColor: colors.primary,
     },
     iconOptionText: {
-      fontSize: 20,
+      fontSize: 16,
     },
     colorSelector: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      gap: 12,
+      gap: 8,
     },
     colorOption: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -279,37 +287,37 @@ const CategoriesScreen = ({ navigation }) => {
     },
     colorOptionCheck: {
       color: 'white',
-      fontSize: 16,
+      fontSize: 12,
       fontWeight: typography.fontWeight.bold,
     },
     modalActions: {
       flexDirection: 'row',
-      gap: 12,
-      marginTop: 20,
+      gap: 10,
+      marginTop: 16,
     },
     cancelButton: {
       flex: 1,
-      paddingVertical: 12,
+      paddingVertical: 10,
       borderRadius: 8,
       borderWidth: 1,
       borderColor: themeColors.border,
       alignItems: 'center',
     },
     cancelButtonText: {
-      fontSize: typography.fontSize.base,
+      fontSize: typography.fontSize.sm,
       fontWeight: typography.fontWeight.medium,
       color: themeColors.textPrimary,
     },
     saveButton: {
       flex: 1,
-      paddingVertical: 12,
+      paddingVertical: 8,
       borderRadius: 8,
       backgroundColor: colors.primary,
       alignItems: 'center',
     },
     saveButtonText: {
-      fontSize: typography.fontSize.base,
-      fontWeight: typography.fontWeight.medium,
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.semibold,
       color: 'white',
     },
   });
@@ -336,16 +344,18 @@ const CategoriesScreen = ({ navigation }) => {
               style={styles.categoryCard}
               onPress={() => handleEditCategory(category)}
             >
-              <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
-                <Text style={styles.categoryIconText}>{category.icon}</Text>
-              </View>
-              <Text style={styles.categoryName}>{category.name}</Text>
-              <View style={styles.categoryType}>
-                <Text style={[styles.typeText, { 
-                  color: category.type === 'income' ? colors.income : colors.expense 
-                }]}>
-                  {category.type === 'income' ? 'Income' : 'Expense'}
-                </Text>
+              <View style={styles.categoryContent}>
+                <View style={[styles.categoryIcon, { backgroundColor: `${category.color}20` }]}>
+                  <Text style={styles.categoryIconText}>{category.icon}</Text>
+                </View>
+                <View style={styles.categoryTextContainer}>
+                  <Text style={styles.categoryName}>{category.name}</Text>
+                  <Text style={[styles.typeText, { 
+                    color: category.type === 'income' ? colors.income : colors.expense 
+                  }]}>
+                    {category.type === 'income' ? 'Income' : 'Expense'}
+                  </Text>
+                </View>
               </View>
               <TouchableOpacity 
                 style={styles.deleteButton}

@@ -150,10 +150,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderRadius: 12,
-    marginHorizontal: 4,
+    marginHorizontal: 2,
   },
   tabFocused: {
-    // Background color is now set dynamically
+    paddingVertical: 8,
+    paddingInline: 6,
   },
   tabContent: {
     alignItems: 'center',

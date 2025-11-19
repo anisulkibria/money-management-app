@@ -15,10 +15,16 @@ import DashboardScreen from '../screens/DashboardScreen';
 import AddExpenseScreen from '../screens/AddExpenseScreen';
 import AddIncomeScreen from '../screens/AddIncomeScreen';
 import AddBudgetScreen from '../screens/AddBudgetScreen';
+import EditBudgetScreen from '../screens/EditBudgetScreen';
+import ViewBudgetScreen from '../screens/ViewBudgetScreen';
 import AddTransactionScreen from '../screens/AddTransactionScreen';
 import TransactionsScreen from '../screens/TransactionsScreen';
 import BudgetManagementScreen from '../screens/BudgetManagementScreen';
 import ReportsScreen from '../screens/ReportsScreen';
+import MonthlyOverviewReport from '../screens/reports/MonthlyOverviewReport';
+import SpendingByCategoryReport from '../screens/reports/SpendingByCategoryReport';
+import IncomeVsExpensesReport from '../screens/reports/IncomeVsExpensesReport';
+import BudgetPerformanceReport from '../screens/reports/BudgetPerformanceReport';
 import SettingsScreen from '../screens/SettingsScreen';
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CurrencyScreen from '../screens/CurrencyScreen';
@@ -148,6 +154,24 @@ const AppNavigator = () => {
         }}
       />
       <Stack.Screen 
+        name="EditBudget" 
+        component={EditBudgetScreen}
+        options={{
+          headerShown: true,
+          title: 'Edit Budget',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
+        name="ViewBudget" 
+        component={ViewBudgetScreen}
+        options={{
+          headerShown: true,
+          title: 'Budget Details',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
         name="AddTransaction" 
         component={AddTransactionScreen}
         options={{
@@ -198,6 +222,42 @@ const AppNavigator = () => {
         options={{
           headerShown: true,
           title: 'Currency',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
+        name="MonthlyOverviewReport" 
+        component={MonthlyOverviewReport}
+        options={{
+          headerShown: true,
+          title: 'Monthly Overview',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
+        name="SpendingByCategoryReport" 
+        component={SpendingByCategoryReport}
+        options={{
+          headerShown: true,
+          title: 'Spending by Category',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
+        name="IncomeVsExpensesReport" 
+        component={IncomeVsExpensesReport}
+        options={{
+          headerShown: true,
+          title: 'Income vs Expenses',
+          ...screenOptions,
+        }}
+      />
+      <Stack.Screen 
+        name="BudgetPerformanceReport" 
+        component={BudgetPerformanceReport}
+        options={{
+          headerShown: true,
+          title: 'Budget Performance',
           ...screenOptions,
         }}
       />

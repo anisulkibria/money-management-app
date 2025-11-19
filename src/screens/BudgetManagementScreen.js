@@ -99,7 +99,11 @@ const BudgetManagementScreen = ({ navigation }) => {
         showUserIcon={true}
       />
 
-      <ScrollView style={[styles.content, { backgroundColor: themeColors.background }]} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={{ backgroundColor: themeColors.background }} 
+        contentContainerStyle={[styles.content, { backgroundColor: themeColors.background }]}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Overview Card */}
         <View style={[styles.overviewCard, { backgroundColor: themeColors.cardBackground }]}>
           <Text style={[styles.overviewTitle, { color: themeColors.textPrimary }]}>Total Monthly Budget</Text>
@@ -149,10 +153,16 @@ const BudgetManagementScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.budgetActions}>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: `${colors.primary}20` }]}>
+              <TouchableOpacity 
+                style={[styles.actionButton, { backgroundColor: `${colors.primary}20` }]}
+                onPress={() => navigation.navigate('EditBudget', { budgetId: budget.id || index })}
+              >
                 <Text style={[styles.actionText, { color: colors.primary }]}>Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5' }]}>
+              <TouchableOpacity 
+                style={[styles.actionButton, { backgroundColor: isDark ? '#2A2A2A' : '#F5F5F5' }]}
+                onPress={() => navigation.navigate('ViewBudget', { budgetId: budget.id || index })}
+              >
                 <Text style={[styles.actionText, { color: isDark ? '#FFFFFF' : colors.textLightPrimary }]}>View Details</Text>
               </TouchableOpacity>
             </View>
@@ -190,8 +200,8 @@ const getStyles = (theme) => StyleSheet.create({
     fontWeight: typography.fontWeight.bold,
   },
   content: {
-    flex: 1,
     padding: 16,
+    paddingBottom: 20,
   },
   overviewCard: {
     backgroundColor: colors.primary,

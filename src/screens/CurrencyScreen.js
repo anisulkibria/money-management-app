@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, StyleSheet, Alert, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, StyleSheet, Alert, StatusBar, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/theme';
 import { typography, colors } from '../constants';
@@ -9,6 +9,7 @@ const CurrencyScreen = ({ route }) => {
   const theme = useTheme();
   const { isDark, colors: themeColors } = theme;
   const [selectedCurrency, setSelectedCurrency] = useState(route.params?.currentCurrency || 'USD');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const currencies = [
     { code: 'USD', symbol: '$', name: 'US Dollar', country: 'United States' },
@@ -31,7 +32,42 @@ const CurrencyScreen = ({ route }) => {
     { code: 'ZAR', symbol: 'R', name: 'South African Rand', country: 'South Africa' },
     { code: 'KRW', symbol: '₩', name: 'South Korean Won', country: 'South Korea' },
     { code: 'TRY', symbol: '₺', name: 'Turkish Lira', country: 'Turkey' },
+    { code: 'RUB', symbol: '₽', name: 'Russian Ruble', country: 'Russia' },
+    { code: 'PLN', symbol: 'zł', name: 'Polish Złoty', country: 'Poland' },
+    { code: 'THB', symbol: '฿', name: 'Thai Baht', country: 'Thailand' },
+    { code: 'IDR', symbol: 'Rp', name: 'Indonesian Rupiah', country: 'Indonesia' },
+    { code: 'MYR', symbol: 'RM', name: 'Malaysian Ringgit', country: 'Malaysia' },
+    { code: 'PHP', symbol: '₱', name: 'Philippine Peso', country: 'Philippines' },
+    { code: 'VND', symbol: '₫', name: 'Vietnamese Dong', country: 'Vietnam' },
+    { code: 'EGP', symbol: '£', name: 'Egyptian Pound', country: 'Egypt' },
+    { code: 'NGN', symbol: '₦', name: 'Nigerian Naira', country: 'Nigeria' },
+    { code: 'KES', symbol: 'KSh', name: 'Kenyan Shilling', country: 'Kenya' },
+    { code: 'GHS', symbol: 'GH₵', name: 'Ghanaian Cedi', country: 'Ghana' },
+    { code: 'ILS', symbol: '₪', name: 'Israeli New Shekel', country: 'Israel' },
+    { code: 'AED', symbol: 'د.إ', name: 'UAE Dirham', country: 'United Arab Emirates' },
+    { code: 'SAR', symbol: '﷼', name: 'Saudi Riyal', country: 'Saudi Arabia' },
+    { code: 'PKR', symbol: '₨', name: 'Pakistani Rupee', country: 'Pakistan' },
+    { code: 'LKR', symbol: 'රු', name: 'Sri Lankan Rupee', country: 'Sri Lanka' },
+    { code: 'BDT', symbol: '৳', name: 'Bangladeshi Taka', country: 'Bangladesh' },
+    { code: 'NPR', symbol: '₨', name: 'Nepalese Rupee', country: 'Nepal' },
+    { code: 'CLP', symbol: '$', name: 'Chilean Peso', country: 'Chile' },
+    { code: 'COP', symbol: '$', name: 'Colombian Peso', country: 'Colombia' },
+    { code: 'PEN', symbol: 'S/', name: 'Peruvian Sol', country: 'Peru' },
+    { code: 'UYU', symbol: '$U', name: 'Uruguayan Peso', country: 'Uruguay' },
+    { code: 'TWD', symbol: 'NT$', name: 'Taiwan Dollar', country: 'Taiwan' },
+    { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna', country: 'Czech Republic' },
+    { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint', country: 'Hungary' },
+    { code: 'RON', symbol: 'lei', name: 'Romanian Leu', country: 'Romania' },
+    { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev', country: 'Bulgaria' },
+    { code: 'HRK', symbol: 'kn', name: 'Croatian Kuna', country: 'Croatia' },
+    { code: 'ISK', symbol: 'kr', name: 'Icelandic Króna', country: 'Iceland' },
   ];
+
+  const filteredCurrencies = currencies.filter(currency =>
+    currency.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    currency.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    currency.symbol.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleCurrencySelect = (currency) => {
     setSelectedCurrency(currency.code);
@@ -67,7 +103,6 @@ const CurrencyScreen = ({ route }) => {
           <View style={styles.currencyInfo}>
             <Text style={styles.currencyCode}>{currency.code}</Text>
             <Text style={styles.currencyName}>{currency.name}</Text>
-            <Text style={styles.currencyCountry}>{currency.country}</Text>
           </View>
         </View>
         <View style={styles.currencyRight}>
@@ -93,6 +128,18 @@ const CurrencyScreen = ({ route }) => {
     headerSection: {
       marginBottom: 24,
     },
+    searchContainer: {
+      marginBottom: 20,
+    },
+    searchInput: {
+      backgroundColor: themeColors.surface,
+      borderRadius: 12,
+      padding: 16,
+      fontSize: typography.fontSize.base,
+      color: themeColors.textPrimary,
+      borderWidth: 1,
+      borderColor: themeColors.border,
+    },
     headerTitle: {
       fontSize: typography.fontSize.xl,
       fontWeight: typography.fontWeight.bold,
@@ -110,7 +157,7 @@ const CurrencyScreen = ({ route }) => {
     currencyItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 16,
+      padding: 12,
       backgroundColor: themeColors.surface,
       borderRadius: 12,
       marginBottom: 8,
@@ -216,8 +263,19 @@ const CurrencyScreen = ({ route }) => {
           </Text>
         </View>
 
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search currency..."
+            placeholderTextColor={themeColors.textSecondary}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
         <View style={styles.currenciesList}>
-          {currencies.map(renderCurrencyItem)}
+          {filteredCurrencies.map(renderCurrencyItem)}
         </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>

@@ -1,15 +1,18 @@
 import React, { useMemo, useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, useColorScheme, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
 import Header from '../components/Header';
+import { PieChart } from 'react-native-chart-kit';
 
 const DashboardScreen = () => {
   const navigation = useNavigation();
   const systemColorScheme = useColorScheme();
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('This Month');
+  const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
   const isDarkMode = darkMode || systemColorScheme === 'dark';
 
   // Load saved dark mode preference on component mount
@@ -55,6 +58,182 @@ const DashboardScreen = () => {
   }), [isDarkMode]);
   
   const styles = getStyles(themeColors);
+  
+  // Period options for dropdown
+  const periodOptions = ['This Month', 'Last Month', 'Last 3 Months', 'This Year'];
+  
+  // Sample spending data for different periods
+  const getSpendingDataForPeriod = (period) => {
+    switch (period) {
+      case 'This Month':
+        return [
+          {
+            name: 'Food',
+            amount: 450,
+            color: '#FF6B6B',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Transport',
+            amount: 280,
+            color: '#4ECDC4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Shopping',
+            amount: 320,
+            color: '#45B7D1',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Entertainment',
+            amount: 150,
+            color: '#96CEB4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Others',
+            amount: 50,
+            color: '#FFEAA7',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+        ];
+      case 'Last Month':
+        return [
+          {
+            name: 'Food',
+            amount: 380,
+            color: '#FF6B6B',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Transport',
+            amount: 220,
+            color: '#4ECDC4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Shopping',
+            amount: 450,
+            color: '#45B7D1',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Entertainment',
+            amount: 180,
+            color: '#96CEB4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Others',
+            amount: 70,
+            color: '#FFEAA7',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+        ];
+      case 'Last 3 Months':
+        return [
+          {
+            name: 'Food',
+            amount: 1350,
+            color: '#FF6B6B',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Transport',
+            amount: 840,
+            color: '#4ECDC4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Shopping',
+            amount: 1150,
+            color: '#45B7D1',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Entertainment',
+            amount: 480,
+            color: '#96CEB4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Others',
+            amount: 180,
+            color: '#FFEAA7',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+        ];
+      case 'This Year':
+        return [
+          {
+            name: 'Food',
+            amount: 5400,
+            color: '#FF6B6B',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Transport',
+            amount: 3360,
+            color: '#4ECDC4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Shopping',
+            amount: 4600,
+            color: '#45B7D1',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Entertainment',
+            amount: 1920,
+            color: '#96CEB4',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+          {
+            name: 'Others',
+            amount: 720,
+            color: '#FFEAA7',
+            legendFontColor: themeColors.textSecondary,
+            legendFontSize: 12,
+          },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const spendingData = getSpendingDataForPeriod(selectedPeriod);
+
+  const chartConfig = {
+    color: (opacity = 1) => themeColors.textSecondary,
+    labelColor: (opacity = 1) => themeColors.textSecondary,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: "0",
+    },
+  };
   
   return (
     <SafeAreaView style={styles.container} edges={['top', 'right', 'left']}>
@@ -102,17 +281,47 @@ const DashboardScreen = () => {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Top Spending</Text>
-              <TouchableOpacity style={styles.periodButton}>
-                <Text style={styles.periodText}>This Month</Text>
-                <Text style={styles.expandIcon}>▼</Text>
+              <TouchableOpacity style={styles.periodButton} onPress={() => setShowPeriodDropdown(!showPeriodDropdown)}>
+                <Text style={styles.periodText}>{selectedPeriod}</Text>
+                <Text style={styles.expandIcon}>{showPeriodDropdown ? '▲' : '▼'}</Text>
               </TouchableOpacity>
             </View>
+            {showPeriodDropdown && (
+              <View style={styles.dropdownOverlay}>
+                <View style={styles.dropdown}>
+                  {periodOptions.map((option) => (
+                    <TouchableOpacity
+                      key={option}
+                      style={styles.dropdownItem}
+                      onPress={() => {
+                        setSelectedPeriod(option);
+                        setShowPeriodDropdown(false);
+                      }}
+                    >
+                      <Text style={styles.dropdownItemText}>{option}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
             <View style={styles.chartCard}>
               <View style={styles.chartContainer}>
-                <Image 
-                  source={require('../../assets/donut-chart.png')}
-                  style={styles.chart}
-                  resizeMode="contain"
+                <PieChart
+                  data={spendingData}
+                  width={Dimensions.get('window').width - 64}
+                  height={150}
+                  chartConfig={chartConfig}
+                  accessor="amount"
+                  backgroundColor="transparent"
+                  paddingLeft="-15"
+                  center={[5, 5]}
+                  absolute
+                  hasLegend={true}
+                  legend={{
+                    fontSize: 12,
+                    textColor: themeColors.textSecondary,
+                    fontFamily: typography.fontFamily.medium,
+                  }}
                 />
               </View>
             </View>
@@ -122,14 +331,30 @@ const DashboardScreen = () => {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Recent Transactions</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('Transactions')}>
                 <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>
             
             <View style={styles.transactions}>
               {/* Transaction Item 1 */}
-              <View style={styles.transaction}>
+              <TouchableOpacity 
+                style={styles.transaction}
+                onPress={() => {
+                  // Navigate to edit transaction
+                  navigation.navigate('AddTransaction', { 
+                    transaction: {
+                      id: '1',
+                      title: 'Groceries',
+                      subtitle: 'Corner Store',
+                      amount: 45.50,
+                      date: 'Today',
+                      type: 'expense',
+                      icon: '🛒'
+                    }
+                  });
+                }}
+              >
                 <View style={styles.transactionIcon}>
                   <Text style={styles.iconText}>🛒</Text>
                 </View>
@@ -141,10 +366,26 @@ const DashboardScreen = () => {
                   <Text style={styles.expenseText}>-$45.50</Text>
                   <Text style={styles.transactionDate}>Today</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
 
               {/* Transaction Item 2 */}
-              <View style={styles.transaction}>
+              <TouchableOpacity 
+                style={styles.transaction}
+                onPress={() => {
+                  // Navigate to edit transaction
+                  navigation.navigate('AddTransaction', { 
+                    transaction: {
+                      id: '2',
+                      title: 'Salary',
+                      subtitle: 'ACME Corp.',
+                      amount: 2500.00,
+                      date: 'Yesterday',
+                      type: 'income',
+                      icon: '💵'
+                    }
+                  });
+                }}
+              >
                 <View style={[styles.transactionIcon, styles.incomeIcon]}>
                   <Text style={styles.iconText}>💵</Text>
                 </View>
@@ -156,10 +397,26 @@ const DashboardScreen = () => {
                   <Text style={styles.incomeText}>+$2,500.00</Text>
                   <Text style={styles.transactionDate}>Yesterday</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
 
               {/* Transaction Item 3 */}
-              <View style={styles.transaction}>
+              <TouchableOpacity 
+                style={styles.transaction}
+                onPress={() => {
+                  // Navigate to edit transaction
+                  navigation.navigate('AddTransaction', { 
+                    transaction: {
+                      id: '3',
+                      title: 'Utilities',
+                      subtitle: 'Internet Bill',
+                      amount: 60.00,
+                      date: 'Oct 28',
+                      type: 'expense',
+                      icon: '🧾'
+                    }
+                  });
+                }}
+              >
                 <View style={[styles.transactionIcon, styles.expenseIcon]}>
                   <Text style={styles.iconText}>🧾</Text>
                 </View>
@@ -171,7 +428,7 @@ const DashboardScreen = () => {
                   <Text style={styles.expenseText}>-$60.00</Text>
                   <Text style={styles.transactionDate}>Oct 28</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -198,7 +455,7 @@ const getStyles = (theme) => StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 100, // Space for bottom nav
+    paddingBottom: 20, // Space for bottom nav
   },
   balanceCard: {
     backgroundColor: theme.cardBackground,
@@ -277,6 +534,34 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: typography.fontSize.sm,
     color: colors.primary,
   },
+  dropdownOverlay: {
+    position: 'absolute',
+    top: 40,
+    right: 0,
+    zIndex: 1000,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    borderRadius: 8,
+  },
+  dropdown: {
+    backgroundColor: theme.cardBackground,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+    minWidth: 150,
+  },
+  dropdownItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.border,
+  },
+  dropdownItemText: {
+    fontSize: typography.fontSize.sm,
+    color: theme.textPrimary,
+    fontWeight: typography.fontWeight.medium,
+  },
   viewAllText: {
     fontSize: typography.fontSize.sm,
     fontWeight: typography.fontWeight.semibold,
@@ -339,8 +624,9 @@ const getStyles = (theme) => StyleSheet.create({
     elevation: 2,
   },
   chartContainer: {
-    aspectRatio: 1,
-    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
   },
   chart: {
     width: '100%',

@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
@@ -139,6 +139,25 @@ const ReportsScreen = ({ navigation }) => {
                 shadowColor: themeColors.shadow,
                 shadowOpacity: themeColors.shadowOpacity,
               }]}
+              onPress={() => {
+                // Navigate to the appropriate report screen based on type
+                switch(report.type) {
+                  case 'overview':
+                    navigation.navigate('MonthlyOverviewReport');
+                    break;
+                  case 'chart':
+                    navigation.navigate('SpendingByCategoryReport');
+                    break;
+                  case 'trend':
+                    navigation.navigate('IncomeVsExpensesReport');
+                    break;
+                  case 'budget':
+                    navigation.navigate('BudgetPerformanceReport');
+                    break;
+                  default:
+                    break;
+                }
+              }}
             >
               <View style={[styles.reportIcon, { backgroundColor: `${colors.primary}${isDark ? '33' : '20'}` }]}>
                 <Text style={styles.reportIconText}>{report.icon}</Text>
@@ -147,7 +166,28 @@ const ReportsScreen = ({ navigation }) => {
                 <Text style={[styles.reportTitle, { color: themeColors.textPrimary }]}>{report.title}</Text>
                 <Text style={[styles.reportPeriod, { color: themeColors.textSecondary }]}>{report.period}</Text>
               </View>
-              <TouchableOpacity style={styles.viewButton}>
+              <TouchableOpacity 
+                style={styles.viewButton}
+                onPress={() => {
+                  // Navigate to the appropriate report screen based on type
+                  switch(report.type) {
+                    case 'overview':
+                      navigation.navigate('MonthlyOverviewReport');
+                      break;
+                    case 'chart':
+                      navigation.navigate('SpendingByCategoryReport');
+                      break;
+                    case 'trend':
+                      navigation.navigate('IncomeVsExpensesReport');
+                      break;
+                    case 'budget':
+                      navigation.navigate('BudgetPerformanceReport');
+                      break;
+                    default:
+                      break;
+                  }
+                }}
+              >
                 <Text style={styles.viewButtonText}>View</Text>
               </TouchableOpacity>
             </TouchableOpacity>
@@ -158,13 +198,22 @@ const ReportsScreen = ({ navigation }) => {
         <View style={styles.exportSection}>
           <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>Export Options</Text>
           <View style={styles.exportOptions}>
-            <TouchableOpacity style={styles.exportOption}>
+            <TouchableOpacity 
+              style={styles.exportOption}
+              onPress={() => Alert.alert('Coming Soon', 'PDF Report export will be available in a future update.')}
+            >
               <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📄 PDF Report</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.exportOption}>
+            <TouchableOpacity 
+              style={styles.exportOption}
+              onPress={() => Alert.alert('Coming Soon', 'Excel Data export will be available in a future update.')}
+            >
               <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📊 Excel Data</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.exportOption}>
+            <TouchableOpacity 
+              style={styles.exportOption}
+              onPress={() => Alert.alert('Coming Soon', 'Share Summary will be available in a future update.')}
+            >
               <Text style={[styles.exportOptionText, { color: themeColors.textPrimary }]}>📱 Share Summary</Text>
             </TouchableOpacity>
           </View>

@@ -142,7 +142,7 @@ const TransactionsScreen = () => {
         showUserIcon={true}
       />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Summary Cards */}
         <View style={styles.summarySection}>
           <View style={[styles.summaryCard, { 
@@ -203,8 +203,8 @@ const TransactionsScreen = () => {
                   shadowOpacity: themeColors.shadowOpacity,
                 }]}
                 onPress={() => {
-                  // Navigate to transaction details (placeholder)
-                  console.log('Transaction pressed:', transaction.title);
+                  // Navigate to edit transaction
+                  navigation.navigate('AddTransaction', { transaction });
                 }}
               >
                 <View style={[
@@ -257,6 +257,9 @@ const getStyles = (theme) => StyleSheet.create({
     flex: 1,
     backgroundColor: theme.background,
   },
+  scrollView: {
+    flex: 1,
+  },
   filterButton: {
     width: 40,
     height: 40,
@@ -269,9 +272,8 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: 20,
   },
   content: {
-    flex: 1,
     padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   searchContainer: {
     marginBottom: 20,
