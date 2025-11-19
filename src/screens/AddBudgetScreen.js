@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { colors, typography } from '../constants';
-import Header from '../components/Header';
 
 const AddBudgetScreen = ({ navigation }) => {
   const systemColorScheme = useColorScheme();
@@ -96,17 +95,7 @@ const AddBudgetScreen = ({ navigation }) => {
   const styles = getStyles(themeColors);
   
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Header 
-        title="Add Budget" 
-        showUserIcon={true}
-        rightComponent={
-          <TouchableOpacity onPress={handleSaveBudget}>
-            <Text style={styles.saveButton}>Save</Text>
-          </TouchableOpacity>
-        }
-      />
-
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} edges={['bottom']}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Budget Name */}
         <View style={styles.inputGroup}>
@@ -261,6 +250,14 @@ const AddBudgetScreen = ({ navigation }) => {
           </View>
         )}
       </ScrollView>
+      
+      {/* Bottom Save Button */}
+      <TouchableOpacity 
+        style={styles.bottomSaveButton} 
+        onPress={handleSaveBudget}
+      >
+        <Text style={styles.bottomSaveButtonText}>Save Budget</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -392,6 +389,25 @@ const getStyles = (theme) => StyleSheet.create({
     fontSize: typography.fontSize.base,
     color: theme.textPrimary,
     fontWeight: typography.fontWeight.medium,
+  },
+  bottomSaveButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  bottomSaveButtonText: {
+    color: '#FFFFFF',
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.bold,
   },
 });
 

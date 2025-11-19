@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, StyleSheet, Alert, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors, typography } from '../constants';
-import Header from '../components/Header';
+import { useTheme } from '../theme/theme';
+import { typography, colors } from '../constants';
 
 const CurrencyScreen = ({ route }) => {
   const navigation = useNavigation();
+  const theme = useTheme();
+  const { isDark, colors: themeColors } = theme;
   const [selectedCurrency, setSelectedCurrency] = useState(route.params?.currentCurrency || 'USD');
 
   const currencies = [
@@ -50,6 +52,7 @@ const CurrencyScreen = ({ route }) => {
 
   const renderCurrencyItem = (currency) => {
     const isSelected = selectedCurrency === currency.code;
+    const styles = getStyles(themeColors);
     
     return (
       <TouchableOpacity
@@ -78,11 +81,131 @@ const CurrencyScreen = ({ route }) => {
     );
   };
 
+  const getStyles = (themeColors) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: themeColors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    headerSection: {
+      marginBottom: 24,
+    },
+    headerTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: typography.fontWeight.bold,
+      color: themeColors.textPrimary,
+      marginBottom: 8,
+    },
+    headerSubtitle: {
+      fontSize: typography.fontSize.base,
+      color: themeColors.textSecondary,
+      lineHeight: 20,
+    },
+    currenciesList: {
+      marginBottom: 24,
+    },
+    currencyItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: 16,
+      backgroundColor: themeColors.surface,
+      borderRadius: 12,
+      marginBottom: 8,
+      shadowColor: themeColors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: themeColors.shadowOpacity,
+      shadowRadius: 2,
+      elevation: 1,
+    },
+    currencyItemSelected: {
+      borderWidth: 2,
+      borderColor: colors.primary,
+      backgroundColor: `${colors.primary}10`,
+    },
+    currencyLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1,
+    },
+    currencySymbol: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: themeColors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    currencySymbolText: {
+      fontSize: 20,
+      fontWeight: typography.fontWeight.bold,
+      color: themeColors.textPrimary,
+    },
+    currencyInfo: {
+      flex: 1,
+    },
+    currencyCode: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.semibold,
+      color: themeColors.textPrimary,
+      marginBottom: 2,
+    },
+    currencyName: {
+      fontSize: typography.fontSize.base,
+      color: themeColors.textPrimary,
+      marginBottom: 2,
+    },
+    currencyCountry: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+    },
+    currencyRight: {
+      alignItems: 'center',
+    },
+    checkmark: {
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    checkmarkText: {
+      color: 'white',
+      fontSize: 14,
+      fontWeight: typography.fontWeight.bold,
+    },
+    saveButton: {
+      backgroundColor: colors.primary,
+      paddingVertical: 16,
+      paddingHorizontal: 24,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginBottom: 24,
+    },
+    saveButtonText: {
+      color: 'white',
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.semibold,
+    },
+  });
+
+  const styles = getStyles(themeColors);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Header 
-        title="Currency" 
-        showUserIcon={true}
+    <SafeAreaView 
+      style={{
+        flex: 1,
+        backgroundColor: themeColors.background,
+      }}
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.background}
+        translucent={false}
       />
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -104,117 +227,5 @@ const CurrencyScreen = ({ route }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  headerSection: {
-    marginBottom: 24,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
-    marginBottom: 8,
-  },
-  headerSubtitle: {
-    fontSize: typography.fontSize.base,
-    color: colors.textLightSecondary,
-    lineHeight: 20,
-  },
-  currenciesList: {
-    marginBottom: 24,
-  },
-  currencyItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 12,
-    marginBottom: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  currencyItemSelected: {
-    borderWidth: 2,
-    borderColor: colors.primary,
-    backgroundColor: `${colors.primary}10`,
-  },
-  currencyLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  currencySymbol: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.borderLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  currencySymbolText: {
-    fontSize: 20,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
-  },
-  currencyInfo: {
-    flex: 1,
-  },
-  currencyCode: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
-    marginBottom: 2,
-  },
-  currencyName: {
-    fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
-    marginBottom: 2,
-  },
-  currencyCountry: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-  },
-  currencyRight: {
-    alignItems: 'center',
-  },
-  checkmark: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkmarkText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: typography.fontWeight.bold,
-  },
-  saveButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-  },
-});
 
 export default CurrencyScreen;

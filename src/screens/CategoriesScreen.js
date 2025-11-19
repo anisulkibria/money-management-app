@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert, TextInput, Modal, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { colors, typography } from '../constants';
-import Header from '../components/Header';
+import { useTheme } from '../theme/theme';
+import { typography, colors } from '../constants';
 
 const CategoriesScreen = ({ navigation }) => {
+  const theme = useTheme();
+  const { isDark, colors: themeColors } = theme;
   const [categories, setCategories] = useState([
     { id: 1, name: 'Groceries', icon: '🛒', color: '#FF6B6B', type: 'expense' },
     { id: 2, name: 'Transport', icon: '🚗', color: '#4ECDC4', type: 'expense' },
@@ -91,13 +93,241 @@ const CategoriesScreen = ({ navigation }) => {
     );
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <Header 
-        title="Categories" 
-        showUserIcon={true}
-      />
+  const getStyles = (themeColors) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: themeColors.background,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    categoryGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    categoryCard: {
+      width: '48%',
+      backgroundColor: themeColors.surface,
+      borderRadius: 12,
+      padding: 16,
+      shadowColor: themeColors.shadow,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: themeColors.shadowOpacity,
+      shadowRadius: 2,
+      elevation: 2,
+      position: 'relative',
+    },
+    categoryIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    categoryIconText: {
+      fontSize: 24,
+    },
+    categoryName: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.semibold,
+      color: themeColors.textPrimary,
+      marginBottom: 8,
+    },
+    categoryType: {
+      marginBottom: 8,
+    },
+    typeText: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.medium,
+    },
+    deleteButton: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: colors.expense,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    deleteButtonText: {
+      color: 'white',
+      fontSize: 16,
+      fontWeight: typography.fontWeight.bold,
+    },
+    fab: {
+      position: 'absolute',
+      bottom: 96,
+      right: 24,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      shadowColor: themeColors.shadow,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: themeColors.shadowOpacity,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    fabText: {
+      fontSize: 24,
+      color: 'white',
+      fontWeight: typography.fontWeight.bold,
+    },
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContent: {
+      backgroundColor: themeColors.surface,
+      borderRadius: 16,
+      padding: 24,
+      width: '90%',
+      maxHeight: '80%',
+    },
+    modalTitle: {
+      fontSize: typography.fontSize.xl,
+      fontWeight: typography.fontWeight.bold,
+      color: themeColors.textPrimary,
+      marginBottom: 20,
+      textAlign: 'center',
+    },
+    formGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.medium,
+      color: themeColors.textPrimary,
+      marginBottom: 8,
+    },
+    input: {
+      borderWidth: 1,
+      borderColor: themeColors.border,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      fontSize: typography.fontSize.base,
+      color: themeColors.textPrimary,
+      backgroundColor: themeColors.background,
+    },
+    typeSelector: {
+      flexDirection: 'row',
+      backgroundColor: themeColors.border,
+      borderRadius: 8,
+      padding: 4,
+    },
+    typeOption: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: 'center',
+      borderRadius: 6,
+    },
+    typeOptionActive: {
+      backgroundColor: themeColors.surface,
+    },
+    typeOptionText: {
+      fontSize: typography.fontSize.sm,
+      fontWeight: typography.fontWeight.medium,
+      color: themeColors.textSecondary,
+    },
+    typeOptionTextActive: {
+      color: themeColors.textPrimary,
+    },
+    iconSelector: {
+      flexDirection: 'row',
+      gap: 8,
+    },
+    iconOption: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: themeColors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    iconOptionActive: {
+      backgroundColor: colors.primary,
+    },
+    iconOptionText: {
+      fontSize: 20,
+    },
+    colorSelector: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    colorOption: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    colorOptionActive: {
+      borderWidth: 2,
+      borderColor: themeColors.textPrimary,
+    },
+    colorOptionCheck: {
+      color: 'white',
+      fontSize: 16,
+      fontWeight: typography.fontWeight.bold,
+    },
+    modalActions: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 20,
+    },
+    cancelButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: themeColors.border,
+      alignItems: 'center',
+    },
+    cancelButtonText: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.medium,
+      color: themeColors.textPrimary,
+    },
+    saveButton: {
+      flex: 1,
+      paddingVertical: 12,
+      borderRadius: 8,
+      backgroundColor: colors.primary,
+      alignItems: 'center',
+    },
+    saveButtonText: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.medium,
+      color: 'white',
+    },
+  });
 
+  const styles = getStyles(themeColors);
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: themeColors.background,
+      }}
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.background}
+        translucent={false}
+      />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.categoryGrid}>
           {categories.map((category) => (
@@ -253,228 +483,8 @@ const CategoriesScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  categoryCard: {
-    width: '48%',
-    backgroundColor: colors.surfaceLight,
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-    position: 'relative',
-  },
-  categoryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryIconText: {
-    fontSize: 24,
-  },
-  categoryName: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.semibold,
-    color: colors.textLightPrimary,
-    marginBottom: 8,
-  },
-  categoryType: {
-    marginBottom: 8,
-  },
-  typeText: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-  },
-  deleteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: colors.expense,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: typography.fontWeight.bold,
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 96,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  fabText: {
-    fontSize: 24,
-    color: 'white',
-    fontWeight: typography.fontWeight.bold,
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 16,
-    padding: 24,
-    width: '90%',
-    maxHeight: '80%',
-  },
-  modalTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLightPrimary,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLightPrimary,
-    marginBottom: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: typography.fontSize.base,
-    color: colors.textLightPrimary,
-  },
-  typeSelector: {
-    flexDirection: 'row',
-    backgroundColor: colors.borderLight,
-    borderRadius: 8,
-    padding: 4,
-  },
-  typeOption: {
-    flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    borderRadius: 6,
-  },
-  typeOptionActive: {
-    backgroundColor: 'white',
-  },
-  typeOptionText: {
-    fontSize: typography.fontSize.sm,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLightSecondary,
-  },
-  typeOptionTextActive: {
-    color: colors.textLightPrimary,
-  },
-  iconSelector: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  iconOption: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.borderLight,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconOptionActive: {
-    backgroundColor: colors.primary,
-  },
-  iconOptionText: {
-    fontSize: 20,
-  },
-  colorSelector: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  colorOption: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  colorOptionActive: {
-    borderWidth: 2,
-    borderColor: colors.textLightPrimary,
-  },
-  colorOptionCheck: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: typography.fontWeight.bold,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLightPrimary,
-  },
-  saveButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    color: 'white',
-  },
-});
 
 export default CategoriesScreen;

@@ -238,12 +238,10 @@ const getStyles = (theme) => StyleSheet.create({
   const styles = getStyles(themeColors);
   
   return (
-    <SafeAreaView 
+    <View 
       style={{ 
         flex: 1, 
         backgroundColor: themeColors.background,
-        // Apply dark mode to safe area edges
-        edges: ['top', 'left', 'right', 'bottom']
       }}
     >
       <StatusBar 
@@ -324,7 +322,7 @@ const getStyles = (theme) => StyleSheet.create({
           <Text style={styles.footerSubtext}>Version 1.0.0</Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

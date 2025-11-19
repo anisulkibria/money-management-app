@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, useColorScheme, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,6 +10,8 @@ const TransactionsScreen = () => {
   const navigation = useNavigation();
   const systemColorScheme = useColorScheme();
   const [darkMode, setDarkMode] = useState(false);
+  const [searchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const isDark = darkMode || systemColorScheme === 'dark';
   
   // Load saved dark mode preference on component mount
@@ -58,52 +60,80 @@ const TransactionsScreen = () => {
   const styles = getStyles(themeColors);
   
   const transactions = [
-    { 
-      id: 1,
-      title: 'Groceries', 
-      subtitle: 'Corner Store', 
-      amount: '-$45.50', 
-      date: 'Today',
+    {
+      id: '1',
+      title: 'Grocery Shopping',
+      subtitle: 'Walmart',
+      amount: 125.50,
+      date: 'Oct 30',
       type: 'expense',
       icon: '🛒'
     },
-    { 
-      id: 2,
-      title: 'Salary', 
-      subtitle: 'ACME Corp.', 
-      amount: '+$2,500.00', 
-      date: 'Yesterday',
+    {
+      id: '2',
+      title: 'Salary',
+      subtitle: 'Monthly Income',
+      amount: 3500.00,
+      date: 'Oct 29',
       type: 'income',
-      icon: '💵'
+      icon: '💰'
     },
-    { 
-      id: 3,
-      title: 'Utilities', 
-      subtitle: 'Internet Bill', 
-      amount: '-$60.00', 
+    {
+      id: '3',
+      title: 'Internet Bill',
+      subtitle: 'Monthly Subscription',
+      amount: 60.00,
       date: 'Oct 28',
       type: 'expense',
-      icon: '🧾'
+      icon: '💻'
     },
-    { 
-      id: 4,
-      title: 'Restaurant', 
-      subtitle: 'Pizza Place', 
-      amount: '-$25.80', 
+    {
+      id: '4',
+      title: 'Pizza Dinner',
+      subtitle: 'Restaurant',
+      amount: 45.80,
       date: 'Oct 27',
       type: 'expense',
       icon: '🍕'
     },
     { 
-      id: 5,
+      id: '5',
       title: 'Freelance', 
       subtitle: 'Web Design', 
-      amount: '+$500.00', 
+      amount: 500.00, 
       date: 'Oct 26',
       type: 'income',
       icon: '💻'
     },
   ];
+
+  // Filter transactions based on search query
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return transactions;
+    }
+    
+    const query = searchQuery.toLowerCase();
+    return transactions.filter(transaction => 
+      transaction.title.toLowerCase().includes(query) ||
+      transaction.subtitle.toLowerCase().includes(query) ||
+      transaction.amount.toString().includes(query) ||
+      transaction.date.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  // Toggle search visibility
+  const toggleSearch = () => {
+    setSearchVisible(!searchVisible);
+    if (!searchVisible) {
+      setSearchQuery('');
+    }
+  };
+
+  // Handle search icon press
+  const handleSearchPress = () => {
+    toggleSearch();
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} edges={['top', 'right', 'left']}>
@@ -121,7 +151,7 @@ const TransactionsScreen = () => {
             shadowOpacity: themeColors.shadowOpacity,
           }]}>
             <Text style={[styles.summaryLabel, { color: themeColors.textSecondary }]}>Total Income</Text>
-            <Text style={styles.incomeAmount}>+$3,000.00</Text>
+            <Text style={styles.incomeAmount}>+$4,000.00</Text>
           </View>
           <View style={[styles.summaryCard, { 
             backgroundColor: themeColors.cardBackground,
@@ -129,52 +159,85 @@ const TransactionsScreen = () => {
             shadowOpacity: themeColors.shadowOpacity,
           }]}>
             <Text style={[styles.summaryLabel, { color: themeColors.textSecondary }]}>Total Expenses</Text>
-            <Text style={styles.expenseAmount}>-$131.30</Text>
+            <Text style={styles.expenseAmount}>-$231.30</Text>
           </View>
         </View>
 
         {/* Transactions List */}
         <View style={styles.transactionsSection}>
+          {/* Search Bar */}
+          {searchVisible && (
+            <View style={styles.searchContainer}>
+              <View style={[styles.searchInputContainer, { backgroundColor: themeColors.cardBackground }]}>
+                <TextInput
+                  style={[styles.searchInput, { color: themeColors.textPrimary }]}
+                  placeholder="Search transactions..."
+                  placeholderTextColor={themeColors.textSecondary}
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoFocus={true}
+                />
+              </View>
+              <Text style={[styles.searchResultsText, { color: themeColors.textSecondary }]}>
+                {filteredTransactions.length} {filteredTransactions.length === 1 ? 'result' : 'results'} found
+              </Text>
+            </View>
+          )}
+          
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>All Transactions</Text>
-            <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterIcon}>🔍</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.textPrimary }]}>
+              {searchVisible ? 'Search Results' : 'All Transactions'}
+            </Text>
+            <TouchableOpacity style={styles.filterButton} onPress={handleSearchPress}>
+              <Text style={styles.filterIcon}>{searchVisible ? '✕' : '🔍'}</Text>
             </TouchableOpacity>
           </View>
-          {transactions.map((transaction) => (
-            <TouchableOpacity 
-              key={transaction.id} 
-              style={[styles.transaction, { 
-                backgroundColor: themeColors.cardBackground,
-                shadowColor: themeColors.shadow,
-                shadowOpacity: themeColors.shadowOpacity,
-              }]}
-              onPress={() => {
-                // Navigate to transaction details (placeholder)
-                console.log('Transaction pressed:', transaction.title);
-              }}
-            >
-              <View style={[
-                styles.transactionIcon, 
-                transaction.type === 'income' ? styles.incomeIcon : styles.expenseIcon
-              ]}>
-                <Text style={styles.iconText}>{transaction.icon}</Text>
-              </View>
-              <View style={styles.transactionDetails}>
-                <Text style={[styles.transactionTitle, { color: themeColors.textPrimary }]}>{transaction.title}</Text>
-                <Text style={[styles.transactionSubtitle, { color: themeColors.textSecondary }]}>{transaction.subtitle}</Text>
-              </View>
-              <View style={styles.transactionAmount}>
-                <Text style={[
-                  styles.amountText,
-                  transaction.type === 'income' ? styles.incomeText : styles.expenseText
+          
+          {filteredTransactions.length > 0 ? (
+            filteredTransactions.map((transaction) => (
+              <TouchableOpacity 
+                key={transaction.id} 
+                style={[styles.transaction, { 
+                  backgroundColor: themeColors.cardBackground,
+                  shadowColor: themeColors.shadow,
+                  shadowOpacity: themeColors.shadowOpacity,
+                }]}
+                onPress={() => {
+                  // Navigate to transaction details (placeholder)
+                  console.log('Transaction pressed:', transaction.title);
+                }}
+              >
+                <View style={[
+                  styles.transactionIcon, 
+                  transaction.type === 'income' ? styles.incomeIcon : styles.expenseIcon
                 ]}>
-                  {transaction.amount}
-                </Text>
-                <Text style={[styles.transactionDate, { color: themeColors.textSecondary }]}>{transaction.date}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                  <Text style={styles.iconText}>{transaction.icon}</Text>
+                </View>
+                <View style={styles.transactionDetails}>
+                  <Text style={[styles.transactionTitle, { color: themeColors.textPrimary }]}>{transaction.title}</Text>
+                  <Text style={[styles.transactionSubtitle, { color: themeColors.textSecondary }]}>{transaction.subtitle}</Text>
+                </View>
+                <View style={styles.transactionAmount}>
+                  <Text style={[
+                    styles.amountText,
+                    transaction.type === 'income' ? styles.incomeText : styles.expenseText
+                  ]}>
+                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                  </Text>
+                  <Text style={[styles.transactionDate, { color: themeColors.textSecondary }]}>{transaction.date}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Text style={[styles.noResultsText, { color: themeColors.textSecondary }]}>
+                No transactions found for "{searchQuery}"
+              </Text>
+              <TouchableOpacity style={styles.clearSearchButton} onPress={() => setSearchQuery('')}>
+                <Text style={[styles.clearSearchText, { color: colors.primary }]}>Clear Search</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </ScrollView>
 
@@ -210,6 +273,30 @@ const getStyles = (theme) => StyleSheet.create({
     padding: 16,
     paddingBottom: 100,
   },
+  searchContainer: {
+    marginBottom: 20,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    shadowColor: theme.shadow,
+    shadowOpacity: theme.shadowOpacity,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: typography.fontSize.base,
+    paddingVertical: 12,
+  },
+  searchResultsText: {
+    fontSize: typography.fontSize.sm,
+    fontStyle: 'italic',
+  },
   summarySection: {
     flexDirection: 'row',
     gap: 12,
@@ -244,11 +331,16 @@ const getStyles = (theme) => StyleSheet.create({
   transactionsSection: {
     flex: 1,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: typography.fontSize.lg,
     fontWeight: typography.fontWeight.bold,
     color: theme.textPrimary,
-    marginBottom: 16,
   },
   transaction: {
     flexDirection: 'row',
@@ -307,6 +399,23 @@ const getStyles = (theme) => StyleSheet.create({
   transactionDate: {
     fontSize: typography.fontSize.sm,
   },
+  noResultsContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noResultsText: {
+    fontSize: typography.fontSize.base,
+    marginBottom: 16,
+  },
+  clearSearchButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  clearSearchText: {
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
+  },
   fab: {
     position: 'absolute',
     bottom: 96,
@@ -320,7 +429,6 @@ const getStyles = (theme) => StyleSheet.create({
     shadowColor: theme.shadow,
     shadowOpacity: theme.shadowOpacity,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 4,
   },

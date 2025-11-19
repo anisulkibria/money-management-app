@@ -93,7 +93,7 @@ const BudgetManagementScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} edges={['top', 'right', 'left']}>
       <Header 
         title="Budget Management" 
         showUserIcon={true}

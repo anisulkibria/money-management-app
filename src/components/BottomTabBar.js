@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, typography } from '../constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'react-native';
+import { useTheme } from '../theme/theme';
 
 const BottomTabBar = ({ state, descriptors, navigation }) => {
   const systemColorScheme = useColorScheme();
@@ -85,15 +86,15 @@ const BottomTabBar = ({ state, descriptors, navigation }) => {
           const getIcon = (routeName) => {
             switch (routeName) {
               case 'Dashboard':
-                return '📊';
+                return '🏠';
               case 'Transactions':
-                return '⇄';
+                return '💳';
               case 'Budgets':
-                return '🥧';
+                return '📊';
               case 'Reports':
                 return '📈';
               default:
-                return '📄';
+                return '�';
             }
           };
 
@@ -136,7 +137,7 @@ const BottomTabBar = ({ state, descriptors, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    borderTopWidth: 1,
+    // Border removed from container since tabBar already has the proper border
   },
   tabBar: {
     flexDirection: 'row',

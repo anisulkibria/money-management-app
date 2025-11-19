@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, typography } from '../constants';
+import { useTheme } from '../theme/theme';
+import { typography, colors } from '../constants';
 
 const SupportScreen = ({ navigation }) => {
+  const theme = useTheme();
+  const { isDark, colors: themeColors } = theme;
+
   const handleEmailPress = () => {
     Linking.openURL('mailto:a@anisul.com');
   };
@@ -16,21 +20,126 @@ const SupportScreen = ({ navigation }) => {
     Linking.openURL('https://anisul.com/faq');
   };
 
+  const getStyles = (themeColors) => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: themeColors.background,
+    },
+    scrollContent: {
+      flexGrow: 1,
+      padding: 20,
+    },
+    content: {
+      flex: 1,
+    },
+    supportContainer: {
+      marginBottom: 32,
+    },
+    sectionTitle: {
+      fontSize: typography.fontSize.lg,
+      fontWeight: typography.fontWeight.bold,
+      color: themeColors.textPrimary,
+      marginBottom: 20,
+      fontFamily: typography.fontFamily.regular,
+    },
+    supportOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: themeColors.surface,
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      shadowColor: themeColors.shadow,
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: themeColors.shadowOpacity,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    optionIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      backgroundColor: themeColors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 16,
+    },
+    iconText: {
+      fontSize: 20,
+    },
+    optionContent: {
+      flex: 1,
+    },
+    optionTitle: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.medium,
+      color: themeColors.textPrimary,
+      marginBottom: 4,
+      fontFamily: typography.fontFamily.regular,
+    },
+    optionDescription: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+      fontFamily: typography.fontFamily.regular,
+    },
+    arrow: {
+      fontSize: typography.fontSize.lg,
+      color: themeColors.textSecondary,
+    },
+    contactContainer: {
+      marginBottom: 32,
+    },
+    contactItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: themeColors.border,
+    },
+    contactLabel: {
+      fontSize: typography.fontSize.base,
+      fontWeight: typography.fontWeight.medium,
+      color: themeColors.textPrimary,
+      fontFamily: typography.fontFamily.regular,
+    },
+    contactValue: {
+      fontSize: typography.fontSize.base,
+      color: colors.primary,
+      textDecorationLine: 'underline',
+      fontFamily: typography.fontFamily.regular,
+    },
+    versionContainer: {
+      alignItems: 'center',
+      marginTop: 'auto',
+      paddingTop: 20,
+    },
+    versionText: {
+      fontSize: typography.fontSize.sm,
+      color: themeColors.textSecondary,
+      fontFamily: typography.fontFamily.regular,
+    },
+  });
+
+  const styles = getStyles(themeColors);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: themeColors.background,
+      }}
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors.background}
+        translucent={false}
+      />
+      <ScrollView style={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.backButtonText}>← Back</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Support</Text>
-            <View style={styles.placeholder} />
-          </View>
 
           {/* Support Options */}
           <View style={styles.supportContainer}>
@@ -106,137 +215,8 @@ const SupportScreen = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 20,
-  },
-  content: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-  },
-  backButtonText: {
-    fontSize: typography.fontSize.base,
-    color: colors.primary,
-    fontWeight: typography.fontWeight.medium,
-    fontFamily: typography.fontFamily.regular,
-  },
-  headerTitle: {
-    fontSize: typography.fontSize.xl,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLight,
-    fontFamily: typography.fontFamily.regular,
-  },
-  placeholder: {
-    width: 60,
-  },
-  supportContainer: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: typography.fontSize.lg,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.textLight,
-    marginBottom: 20,
-    fontFamily: typography.fontFamily.regular,
-  },
-  supportOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  optionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F3F4F6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  iconText: {
-    fontSize: 20,
-  },
-  optionContent: {
-    flex: 1,
-  },
-  optionTitle: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLight,
-    marginBottom: 4,
-    fontFamily: typography.fontFamily.regular,
-  },
-  optionDescription: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-    fontFamily: typography.fontFamily.regular,
-  },
-  arrow: {
-    fontSize: typography.fontSize.lg,
-    color: colors.textLightSecondary,
-  },
-  contactContainer: {
-    marginBottom: 32,
-  },
-  contactItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  contactLabel: {
-    fontSize: typography.fontSize.base,
-    fontWeight: typography.fontWeight.medium,
-    color: colors.textLight,
-    fontFamily: typography.fontFamily.regular,
-  },
-  contactValue: {
-    fontSize: typography.fontSize.base,
-    color: colors.primary,
-    textDecorationLine: 'underline',
-    fontFamily: typography.fontFamily.regular,
-  },
-  versionContainer: {
-    alignItems: 'center',
-    marginTop: 'auto',
-    paddingTop: 20,
-  },
-  versionText: {
-    fontSize: typography.fontSize.sm,
-    color: colors.textLightSecondary,
-    fontFamily: typography.fontFamily.regular,
-  },
-});
 
 export default SupportScreen;

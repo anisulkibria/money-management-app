@@ -3,7 +3,6 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { colors, typography } from '../constants';
-import Header from '../components/Header';
 import { useTheme } from '../theme/theme';
 
 const AddTransactionScreen = ({ navigation }) => {
@@ -111,12 +110,7 @@ const AddTransactionScreen = ({ navigation }) => {
   const styles = getStyles(themeColors);
   
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <Header 
-        title="Add Transaction" 
-        showUserIcon={true}
-      />
-
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} edges={['bottom']}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Transaction Type Toggle */}
         <View style={styles.typeToggleContainer}>
@@ -393,12 +387,16 @@ const getStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.cardBackground,
     borderRadius: 8,
     padding: 4,
+    gap: 8,
   },
   toggleButton: {
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
     borderRadius: 6,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: theme.border,
   },
   activeExpenseButton: {
     backgroundColor: colors.expense,
@@ -469,7 +467,7 @@ const getStyles = (theme) => StyleSheet.create({
     color: theme.textSecondary,
   },
   selectedCategoryText: {
-    color: theme.placeholderText,
+    color: '#FFFFFF',
   },
   dateInput: {
     flexDirection: 'row',

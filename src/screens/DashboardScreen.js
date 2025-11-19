@@ -57,7 +57,7 @@ const DashboardScreen = () => {
   const styles = getStyles(themeColors);
   
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'right', 'left']}>
       <Header title="Dashboard" showUserIcon={true} />
       <ScrollView style={styles.scrollView}>
         <View style={styles.content}>
@@ -81,7 +81,9 @@ const DashboardScreen = () => {
 
           {/* Monthly Budget */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Monthly Budget</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Monthly Budget</Text>
+            </View>
             <View style={styles.budgetCard}>
               <View style={styles.budgetHeader}>
                 <Text style={styles.budgetLabel}>Spent</Text>
